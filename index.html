@@ -4,13 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>Sci-Image — Scientific Figure & Diagram Studio</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230ea5e9'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <!-- Fabric.js Core Canvas Engine -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
 <!-- SmilesDrawer for 2D Chemical SMILES Vector Rendering -->
-<script src="https://unpkg.com/smiles-drawer@2.1.7/dist/smiles-drawer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/smiles-drawer@2.1.7/dist/smiles-drawer.min.js"></script>
 <!-- jsPDF for Direct Vector/Publication PDF Export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -1133,63 +1134,63 @@
 
     <!-- Tool Rail -->
     <nav class="rail" aria-label="Drawing & Scientific Tools">
-      <button class="rail-btn" data-tool="select" aria-pressed="true" title="Select / Transform (V)" aria-label="Select tool">
+      <button type="button" class="rail-btn" data-tool="select" aria-pressed="true" title="Select / Transform (V)" aria-label="Select tool">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 3l6.5 17 2-7 7-2z"/></svg>
       </button>
-      <button class="rail-btn" data-tool="pan" title="Pan Canvas (H / Spacebar)" aria-label="Pan tool">
+      <button type="button" class="rail-btn" data-tool="pan" title="Pan Canvas (H / Spacebar)" aria-label="Pan tool">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 11V6a1.5 1.5 0 0 1 3 0v4M11 10.5V4.5a1.5 1.5 0 0 1 3 0v6M14 10.5V6a1.5 1.5 0 0 1 3 0v6M8 11l-1.6-1.6a1.4 1.4 0 0 0-2 2L8 15v1a5 5 0 0 0 5 5h1a5 5 0 0 0 5-5v-4"/></svg>
       </button>
       <div class="rail-sep" role="none"></div>
 
       <!-- Geometry -->
-      <button class="rail-btn" data-tool="rect" title="Rectangle (R)" aria-label="Rectangle tool">
+      <button type="button" class="rail-btn" data-tool="rect" title="Rectangle (R)" aria-label="Rectangle tool">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14" rx="2"/></svg>
       </button>
-      <button class="rail-btn" data-tool="ellipse" title="Ellipse / Cell body (O)" aria-label="Ellipse tool">
+      <button type="button" class="rail-btn" data-tool="ellipse" title="Ellipse / Cell body (O)" aria-label="Ellipse tool">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="9" ry="6.5"/></svg>
       </button>
-      <button class="rail-btn" data-tool="line" title="Line (L)" aria-label="Line tool">
+      <button type="button" class="rail-btn" data-tool="line" title="Line (L)" aria-label="Line tool">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19L19 5"/></svg>
       </button>
-      <button class="rail-btn" data-tool="arrow" title="Reaction Arrow (A)" aria-label="Arrow connector">
+      <button type="button" class="rail-btn" data-tool="arrow" title="Reaction Arrow (A)" aria-label="Arrow connector">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19L19 5"/><path d="M9 5h10v10"/></svg>
       </button>
-      <button class="rail-btn" data-tool="inhibition" title="Inhibition Flat-Bar (--|)" aria-label="Inhibition bar">
+      <button type="button" class="rail-btn" data-tool="inhibition" title="Inhibition Flat-Bar (--|)" aria-label="Inhibition bar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h13"/><path d="M18 6v12"/></svg>
       </button>
-      <button class="rail-btn" data-tool="reversible" title="Reversible Reaction (<==>)" aria-label="Reversible arrow">
+      <button type="button" class="rail-btn" data-tool="reversible" title="Reversible Reaction (<==>)" aria-label="Reversible arrow">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9h14M14 5l4 4"/><path d="M20 15H6M10 19l-4-4"/></svg>
       </button>
-      <button class="rail-btn" data-tool="pen" title="Freehand Pen (P)" aria-label="Pen tool">
+      <button type="button" class="rail-btn" data-tool="pen" title="Freehand Pen (P)" aria-label="Pen tool">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18"/></svg>
       </button>
-      <button class="rail-btn" data-tool="text" title="Scientific Text & Labels (T)" aria-label="Text tool">
+      <button type="button" class="rail-btn" data-tool="text" title="Scientific Text & Labels (T)" aria-label="Text tool">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 6h14M12 6v13"/></svg>
       </button>
       <div class="rail-sep" role="none"></div>
 
       <!-- Domain Specific Scientific Generators -->
-      <button class="rail-btn" data-flyout="assets" title="Biological & Lab Vector Assets" aria-label="Asset library">
+      <button type="button" class="rail-btn" data-flyout="assets" title="Biological & Lab Vector Assets" aria-label="Asset library">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="3"/><path d="M4 20c0-2.8 2-5 4-5s4 2.2 4 5"/><circle cx="17" cy="16" r="2.5"/></svg>
       </button>
-      <button class="rail-btn" data-flyout="molecules" title="Molecule Generator (SMILES & PubChem)" aria-label="Molecule generator">
+      <button type="button" class="rail-btn" data-flyout="molecules" title="Molecule Generator (SMILES & PubChem)" aria-label="Molecule generator">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l7 4v10l-7 4-7-4V7z"/><path d="M12 3v18M5 7l7 4 7-4M5 17l7-4 7 4"/></svg>
       </button>
-      <button class="rail-btn" data-flyout="membrane" title="Biomembrane & Vesicle Generator" aria-label="Membrane builder">
+      <button type="button" class="rail-btn" data-flyout="membrane" title="Biomembrane & Vesicle Generator" aria-label="Membrane builder">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M3 16c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg>
       </button>
-      <button class="rail-btn" data-flyout="macromol" title="DNA Helix & Protein Visualizers" aria-label="Macromolecule visualizer">
+      <button type="button" class="rail-btn" data-flyout="macromol" title="DNA Helix & Protein Visualizers" aria-label="Macromolecule visualizer">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3c4 6 8 6 12 0M6 21c4-6 8-6 12 0M6 9c4 6 8 6 12 0M6 15c4-6 8-6 12 0"/><line x1="6" y1="3" x2="6" y2="21"/><line x1="18" y1="3" x2="18" y2="21"/></svg>
       </button>
 
       <div class="rail-sep" role="none"></div>
-      <button class="rail-btn" id="btnUpload" title="Import Image (Micrograph, Western Blot, PNG/SVG)" aria-label="Upload image">
+      <button type="button" class="rail-btn" id="btnUpload" title="Import Image (Micrograph, Western Blot, PNG/SVG)" aria-label="Upload image">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5-9 9"/></svg>
       </button>
       <input type="file" id="imageFileInput" accept="image/*,.svg" class="vh">
 
       <div style="flex:1"></div>
-      <button class="rail-btn mobile-panel-toggle" id="btnMobileSheetToggle" title="Inspector Sheet" aria-label="Toggle inspector">
+      <button type="button" class="rail-btn mobile-panel-toggle" id="btnMobileSheetToggle" title="Inspector Sheet" aria-label="Toggle inspector">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15h16M4 9h10"/></svg>
       </button>
     </nav>
@@ -1201,7 +1202,7 @@
           <h2>Scientific Vector Assets</h2>
           <p>Bioicons, organelles, lab equipment & signaling tags</p>
         </div>
-        <button class="flyout-close" data-close-flyout aria-label="Close drawer">
+        <button type="button" class="flyout-close" data-close-flyout aria-label="Close drawer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>
@@ -1210,11 +1211,11 @@
           <input type="search" id="assetSearch" class="search-input" placeholder="Search organelles, labware, proteins…">
         </div>
         <div class="asset-cat-tabs" id="assetCatTabs">
-          <button class="asset-cat-btn active" data-cat="all">All</button>
-          <button class="asset-cat-btn" data-cat="cells">Cell Biology</button>
-          <button class="asset-cat-btn" data-cat="molecular">Genetics & DNA</button>
-          <button class="asset-cat-btn" data-cat="lab">Labware</button>
-          <button class="asset-cat-btn" data-cat="signaling">Signaling</button>
+          <button type="button" class="asset-cat-btn active" data-cat="all">All</button>
+          <button type="button" class="asset-cat-btn" data-cat="cells">Cell Biology</button>
+          <button type="button" class="asset-cat-btn" data-cat="molecular">Genetics & DNA</button>
+          <button type="button" class="asset-cat-btn" data-cat="lab">Labware</button>
+          <button type="button" class="asset-cat-btn" data-cat="signaling">Signaling</button>
         </div>
         <div class="asset-grid" id="assetGrid"></div>
         <p class="hint" style="margin-top:auto;">Every icon is a crisp, native vector. Ungroup anytime to recolor individual membranes, lumen, or proteins.</p>
@@ -1228,7 +1229,7 @@
           <h2>Molecule Generator</h2>
           <p>SMILES code, PubChem compound search & chemical library</p>
         </div>
-        <button class="flyout-close" data-close-flyout aria-label="Close drawer">
+        <button type="button" class="flyout-close" data-close-flyout aria-label="Close drawer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>
@@ -1238,11 +1239,11 @@
           <h4>SMILES String or Chemical Name</h4>
           <div style="display:flex; gap:6px; margin-bottom:6px;">
             <input type="text" id="smilesInput" class="text-input" placeholder="e.g. Aspirin, Dopamine, or SMILES code" value="CC(=O)OC1=CC=CC=C1C(=O)O">
-            <button class="btn btn-accent" id="btnGenSmiles" style="padding:0 12px;">Insert</button>
+            <button type="button" class="btn btn-accent" id="btnGenSmiles" style="padding:0 12px;">Insert</button>
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span class="hint" id="chemStatus">Ready</span>
-            <button class="action-btn" id="btnPubChemSearch" style="padding:3px 8px; font-size:11px;">Search PubChem</button>
+            <button type="button" class="action-btn" id="btnPubChemSearch" style="padding:3px 8px; font-size:11px;">Search PubChem</button>
           </div>
         </div>
 
@@ -1258,7 +1259,7 @@
           <h2>Biomembrane Generator</h2>
           <p>Parametric lipid bilayers, wavy membranes & vesicles</p>
         </div>
-        <button class="flyout-close" data-close-flyout aria-label="Close drawer">
+        <button type="button" class="flyout-close" data-close-flyout aria-label="Close drawer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>
@@ -1266,7 +1267,7 @@
         <div class="flyout-card">
           <h4>Interactive Bilayer Path Brush</h4>
           <p class="hint" style="margin:0 0 10px;">Click canvas points to trace custom cell membrane paths with dual lipid leaflets.</p>
-          <button class="btn btn-teal" id="btnStartMembranePath" style="width:100%; justify-content:center;">Trace Membrane Path</button>
+          <button type="button" class="btn btn-teal" id="btnStartMembranePath" style="width:100%; justify-content:center;">Trace Membrane Path</button>
         </div>
 
         <div class="flyout-card">
@@ -1281,7 +1282,7 @@
               <input type="number" id="wavyCount" class="num-input" value="3" min="1" max="10">
             </div>
           </div>
-          <button class="btn" id="btnInsertWavyMembrane" style="width:100%; justify-content:center;">Generate Wavy Membrane</button>
+          <button type="button" class="btn" id="btnInsertWavyMembrane" style="width:100%; justify-content:center;">Generate Wavy Membrane</button>
         </div>
 
         <div class="flyout-card">
@@ -1299,11 +1300,11 @@
           <div class="field" style="margin-bottom:8px;">
             <label style="font-size:11px; font-weight:600;">Type</label>
             <div class="segmented" id="vesicleTypeSeg">
-              <button data-type="bilayer" class="active">Bilayer Vesicle</button>
-              <button data-type="micelle">Micelle</button>
+              <button type="button" data-type="bilayer" class="active">Bilayer Vesicle</button>
+              <button type="button" data-type="micelle">Micelle</button>
             </div>
           </div>
-          <button class="btn btn-accent" id="btnInsertVesicle" style="width:100%; justify-content:center;">Generate Vesicle</button>
+          <button type="button" class="btn btn-accent" id="btnInsertVesicle" style="width:100%; justify-content:center;">Generate Vesicle</button>
         </div>
       </div>
     </div>
@@ -1315,7 +1316,7 @@
           <h2>Macromolecule Visualizer</h2>
           <p>Parametric DNA double-helix, RNA & protein ribbons</p>
         </div>
-        <button class="flyout-close" data-close-flyout aria-label="Close drawer">
+        <button type="button" class="flyout-close" data-close-flyout aria-label="Close drawer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>
@@ -1340,21 +1341,21 @@
               <input type="color" id="dnaColorBp" value="#64748b" title="Base pair rungs">
             </div>
           </div>
-          <button class="btn btn-accent" id="btnGenDNA" style="width:100%; justify-content:center;">Generate DNA Helix</button>
+          <button type="button" class="btn btn-accent" id="btnGenDNA" style="width:100%; justify-content:center;">Generate DNA Helix</button>
         </div>
 
         <div class="flyout-card">
           <h4>Protein Secondary Structure</h4>
           <div class="row2" style="margin-bottom:8px;">
-            <button class="action-btn" id="btnGenAlphaHelix">Alpha Helix</button>
-            <button class="action-btn" id="btnGenBetaSheet">Beta Sheet</button>
+            <button type="button" class="action-btn" id="btnGenAlphaHelix">Alpha Helix</button>
+            <button type="button" class="action-btn" id="btnGenBetaSheet">Beta Sheet</button>
           </div>
-          <button class="action-btn" id="btnGenAntibody" style="width:100%;">Immunoglobulin (IgG) Antibody</button>
+          <button type="button" class="action-btn" id="btnGenAntibody" style="width:100%;">Immunoglobulin (IgG) Antibody</button>
         </div>
 
         <div class="flyout-card">
           <h4>RNA Stem-Loop (Hairpin)</h4>
-          <button class="action-btn" id="btnGenRNAHairpin" style="width:100%;">Generate RNA Hairpin</button>
+          <button type="button" class="action-btn" id="btnGenRNAHairpin" style="width:100%;">Generate RNA Hairpin</button>
         </div>
       </div>
     </div>
@@ -1711,9 +1712,9 @@
     text: 'Text'
   };
 
-  function setTool(tool){
+  function setTool(tool, keepFlyouts){
     if (state.builder) cancelBuilder();
-    closeAllFlyouts();
+    if (!keepFlyouts) closeAllFlyouts();
     state.tool = tool;
 
     railButtons.forEach(function(b){
@@ -1738,7 +1739,10 @@
   }
 
   railButtons.forEach(function(b){
-    b.addEventListener('click', function(){ setTool(b.dataset.tool); });
+    b.addEventListener('click', function(e){
+      e.preventDefault();
+      setTool(b.dataset.tool);
+    });
   });
 
   /* ======================================================================
@@ -1750,22 +1754,35 @@
   }
 
   document.querySelectorAll('[data-flyout]').forEach(function(btn){
-    btn.addEventListener('click', function(){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
       var flyoutId = 'flyout-' + btn.dataset.flyout;
       var el = document.getElementById(flyoutId);
+      if (!el) return;
       var wasOpen = el.classList.contains('open');
       closeAllFlyouts();
       if (!wasOpen){
+        setTool('select', true);
+        railButtons.forEach(function(b){ b.setAttribute('aria-pressed','false'); });
         el.classList.add('open');
         btn.classList.add('active-flyout');
-        setTool('select');
-        railButtons.forEach(function(b){ b.setAttribute('aria-pressed','false'); });
       }
     });
   });
 
   document.querySelectorAll('[data-close-flyout]').forEach(function(btn){
-    btn.addEventListener('click', closeAllFlyouts);
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      closeAllFlyouts();
+    });
+  });
+
+  document.querySelectorAll('.flyout').forEach(function(flyout){
+    flyout.addEventListener('click', function(e){
+      e.stopPropagation();
+    });
   });
 
   /* ======================================================================
@@ -2978,9 +2995,13 @@
 
     filtered.forEach(function(a){
       var tile = document.createElement('button');
+      tile.type = 'button';
       tile.className = 'asset-tile';
       tile.innerHTML = svgWrap(a.svg) + '<span>' + a.name + '</span>';
-      tile.addEventListener('click', function(){ placeAsset(a); });
+      tile.addEventListener('click', function(e){
+        e.preventDefault();
+        placeAsset(a);
+      });
       grid.appendChild(tile);
     });
   }
@@ -3012,7 +3033,8 @@
   });
 
   document.querySelectorAll('.asset-cat-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
       document.querySelectorAll('.asset-cat-btn').forEach(function(x){ x.classList.remove('active'); });
       btn.classList.add('active');
       var q = document.getElementById('assetSearch').value.trim();
@@ -3049,9 +3071,11 @@
   var curatedGrid = document.getElementById('curatedMoleculeGrid');
   CURATED_MOLECULES.forEach(function(m){
     var tile = document.createElement('button');
+    tile.type = 'button';
     tile.className = 'asset-tile';
     tile.innerHTML = '<div style="font-family:var(--font-data); font-size:18px; font-weight:700; color:#0284c7; padding:4px 0;">⬡</div><span>' + m.name + '</span>';
-    tile.addEventListener('click', function(){
+    tile.addEventListener('click', function(e){
+      e.preventDefault();
       insertSmilesToCanvas(m.smiles, m.name);
     });
     curatedGrid.appendChild(tile);
@@ -3165,7 +3189,8 @@
   });
 
   // PubChem REST API lookup
-  document.getElementById('btnPubChemSearch').addEventListener('click', function(){
+  document.getElementById('btnPubChemSearch').addEventListener('click', function(e){
+    e.preventDefault();
     var query = document.getElementById('smilesInput').value.trim();
     if (!query) return;
     var status = document.getElementById('chemStatus');
@@ -3174,10 +3199,13 @@
     var url = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/' + encodeURIComponent(query) + '/property/CanonicalSMILES,MolecularFormula,MolecularWeight/JSON';
     fetch(url)
       .then(function(res){
-        if (!res.ok) throw new Error('Compound not found in PubChem');
+        if (!res.ok) throw new Error('Compound not found in PubChem (' + res.status + ')');
         return res.json();
       })
       .then(function(data){
+        if (!data || !data.PropertyTable || !data.PropertyTable.Properties || !data.PropertyTable.Properties.length){
+          throw new Error('No compound data returned');
+        }
         var props = data.PropertyTable.Properties[0];
         status.textContent = props.MolecularFormula + ' · ' + props.MolecularWeight + ' g/mol';
         document.getElementById('smilesInput').value = props.CanonicalSMILES;
@@ -3528,7 +3556,9 @@
   /* ======================================================================
      17. IMAGE UPLOAD & IMPORT
   ====================================================================== */
-  document.getElementById('btnUpload').addEventListener('click', function(){
+  document.getElementById('btnUpload').addEventListener('click', function(e){
+    e.preventDefault();
+    closeAllFlyouts();
     document.getElementById('imageFileInput').click();
   });
 
@@ -3581,9 +3611,12 @@
     projectMenu.classList.toggle('open');
   });
 
-  document.addEventListener('click', function(){
+  document.addEventListener('click', function(e){
     projectMenu.classList.remove('open');
     exportMenu.classList.remove('open');
+    if (!e.target.closest('.flyout') && !e.target.closest('[data-flyout]')){
+      closeAllFlyouts();
+    }
   });
   projectMenu.addEventListener('click', function(e){ e.stopPropagation(); });
 
