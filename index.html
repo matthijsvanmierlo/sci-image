@@ -469,6 +469,41 @@
     color: var(--text-ink);
   }
 
+  /* Workflow & Flow Step Tooling */
+  .flow-color-chip {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    cursor: pointer;
+    box-shadow: 0 0 0 1px var(--line-soft);
+    transition: transform 0.12s ease;
+    display: inline-block;
+  }
+  .flow-color-chip:hover { transform: scale(1.15); }
+  .flow-color-chip.active {
+    box-shadow: 0 0 0 2px var(--accent);
+    transform: scale(1.15);
+  }
+  .badge-soft {
+    display: inline-block;
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+    margin-right: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .badge-soft.purple { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
+  .badge-soft.teal { background: rgba(13, 148, 136, 0.12); color: #0d9488; }
+  .badge-soft.amber { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+  .badge-soft.rose { background: rgba(225, 29, 72, 0.12); color: #e11d48; }
+  .badge-soft.emerald { background: rgba(5, 150, 105, 0.12); color: #059669; }
+
+
   /* Canvas Stage */
   .stage {
     position: relative;
@@ -1170,6 +1205,9 @@
       <div class="rail-sep" role="none"></div>
 
       <!-- Domain Specific Scientific Generators -->
+      <button type="button" class="rail-btn" data-flyout="workflow" title="Lab Flow & Protocol Builder" aria-label="Workflow builder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="6" rx="1.5"/><rect x="14" y="15" width="7" height="6" rx="1.5"/><path d="M10 6h4a2 2 0 0 1 2 2v7M16 12l2 3-2 3"/></svg>
+      </button>
       <button type="button" class="rail-btn" data-flyout="assets" title="Biological & Lab Vector Assets" aria-label="Asset library">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="3"/><path d="M4 20c0-2.8 2-5 4-5s4 2.2 4 5"/><circle cx="17" cy="16" r="2.5"/></svg>
       </button>
@@ -1195,6 +1233,93 @@
       </button>
     </nav>
 
+    <!-- Flyout: Lab Flow & Protocol Builder -->
+    <div class="flyout" id="flyout-workflow">
+      <div class="flyout-head">
+        <div>
+          <h2>Lab Flow & Protocol Builder</h2>
+          <p>Numbered cards, decision branches, swimlanes & auto-arrows</p>
+        </div>
+        <button type="button" class="flyout-close" data-close-flyout aria-label="Close drawer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="flyout-body">
+        <!-- Quick Add Controls -->
+        <div class="flyout-card">
+          <h4>Workflow Elements</h4>
+          <button type="button" class="btn btn-accent" id="btnFlyoutAddStep" style="width:100%; justify-content:center; margin-bottom:8px; font-weight:600;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+            + Add Next Flow Step
+          </button>
+          <div style="display:flex; gap:6px; margin-bottom:6px;">
+            <button type="button" class="action-btn" id="btnFlyoutAddDecision" style="flex:1; justify-content:center;">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><polygon points="12,3 21,12 12,21 3,12"/></svg>
+              + Decision
+            </button>
+            <button type="button" class="action-btn" id="btnFlyoutAddSwimlane" style="flex:1; justify-content:center;">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/></svg>
+              + Swimlanes
+            </button>
+          </div>
+          <p class="hint" style="margin:4px 0 0;">New steps automatically append to the right or wrap down, drawing connected reaction arrows from previous steps.</p>
+        </div>
+
+        <!-- Flow Configuration -->
+        <div class="flyout-card">
+          <h4>Automation & Layout</h4>
+          <div class="field" style="margin-bottom:8px;">
+            <label style="font-size:11px; font-weight:600;">Step Card Accent Color</label>
+            <div style="display:flex; gap:8px; align-items:center;" id="flowColorPalette">
+              <span class="flow-color-chip active" data-color="#0ea5e9" style="background:#0ea5e9;" title="Sky Blue"></span>
+              <span class="flow-color-chip" data-color="#0d9488" style="background:#0d9488;" title="Teal"></span>
+              <span class="flow-color-chip" data-color="#059669" style="background:#059669;" title="Emerald"></span>
+              <span class="flow-color-chip" data-color="#d97706" style="background:#d97706;" title="Amber"></span>
+              <span class="flow-color-chip" data-color="#e11d48" style="background:#e11d48;" title="Rose"></span>
+              <span class="flow-color-chip" data-color="#6366f1" style="background:#6366f1;" title="Indigo"></span>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:8px;">
+            <label style="font-size:11px; font-weight:600;">Flow Orientation</label>
+            <div class="segmented" id="flowDirSeg">
+              <button type="button" data-dir="horizontal" class="active">Horizontal (L → R)</button>
+              <button type="button" data-dir="vertical">Vertical (T → B)</button>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">
+            <label style="display:flex; align-items:center; gap:7px; font-size:11.5px; cursor:pointer; color:#334155;">
+              <input type="checkbox" id="chkAutoConnect" checked>
+              <span>Auto-draw connecting reaction arrows</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:7px; font-size:11.5px; cursor:pointer; color:#334155;">
+              <input type="checkbox" id="chkStickyConnectors" checked>
+              <span>Sticky connectors (arrows track cards when dragged)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Pre-built Protocol Pipelines -->
+        <div class="flyout-card">
+          <h4>Protocol Workflow Starters</h4>
+          <p class="hint" style="margin-bottom:8px;">Insert editable process pipelines directly onto canvas:</p>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <button type="button" class="action-btn" id="btnPreset3Step" style="justify-content:flex-start; text-align:left; padding:6px 10px;">
+              <div><strong>3-Step Linear Pipeline</strong><div class="hint" style="font-size:10.5px;">Sample Input → Reaction → Readout</div></div>
+            </button>
+            <button type="button" class="action-btn" id="btnPreset4Step" style="justify-content:flex-start; text-align:left; padding:6px 10px;">
+              <div><strong>4-Stage Assay Pipeline</strong><div class="hint" style="font-size:10.5px;">Prep → Fractionation → Binding → Quantification</div></div>
+            </button>
+            <button type="button" class="action-btn" id="btnPresetDecision" style="justify-content:flex-start; text-align:left; padding:6px 10px;">
+              <div><strong>Branching QC Decision Protocol</strong><div class="hint" style="font-size:10.5px;">Step → Decision Diamond → Pass/Fail branches</div></div>
+            </button>
+            <button type="button" class="action-btn" id="btnPreset2Day" style="justify-content:flex-start; text-align:left; padding:6px 10px;">
+              <div><strong>2-Day Multi-Lane Protocol</strong><div class="hint" style="font-size:10.5px;">Day 1 Preparation & Day 2 Analysis swimlanes</div></div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Flyout 1: Asset Library -->
     <div class="flyout" id="flyout-assets">
       <div class="flyout-head">
@@ -1208,10 +1333,15 @@
       </div>
       <div class="flyout-body">
         <div class="flyout-filter-bar">
-          <input type="search" id="assetSearch" class="search-input" placeholder="Search organelles, labware, proteins…">
+          <input type="search" id="assetSearch" class="search-input" placeholder="Search equipment, safety, flowchart, spin down, lysis, assay…">
         </div>
         <div class="asset-cat-tabs" id="assetCatTabs">
           <button type="button" class="asset-cat-btn active" data-cat="all">All</button>
+          <button type="button" class="asset-cat-btn" data-cat="equipment">Equipment</button>
+          <button type="button" class="asset-cat-btn" data-cat="safety">PPE & Safety</button>
+          <button type="button" class="asset-cat-btn" data-cat="flowchart">Flowchart</button>
+          <button type="button" class="asset-cat-btn" data-cat="process">Process & Timing</button>
+          <button type="button" class="asset-cat-btn" data-cat="specimens">Specimens</button>
           <button type="button" class="asset-cat-btn" data-cat="cells">Cell Biology</button>
           <button type="button" class="asset-cat-btn" data-cat="molecular">Genetics & DNA</button>
           <button type="button" class="asset-cat-btn" data-cat="lab">Labware</button>
@@ -1430,6 +1560,7 @@
       <button class="modal-tab" data-modaltab="chemistry">Chemistry & Molecules</button>
       <button class="modal-tab" data-modaltab="biology">Cell & Bio Tools</button>
       <button class="modal-tab" data-modaltab="publication">Publication DPI & Sizing</button>
+      <button class="modal-tab" data-modaltab="styleguide">Lab Flows & Style Guide</button>
     </div>
     <div class="modal-body">
       <!-- Quickstart -->
@@ -1491,6 +1622,44 @@
         </ul>
       </div>
 
+      <!-- Scientific Vector & Workflow Style Guide -->
+      <div class="modal-tab-content" id="mtab-styleguide">
+        <h4 style="margin-top:0;">Scientific Vector Icon & Workflow Style Guide</h4>
+        <p>To ensure visual consistency and publication elegance across all figures, blueprints, and contributed vector icons, Sci-Image enforces standard vector conventions:</p>
+        <div class="flyout-card" style="margin-bottom:12px;">
+          <h4 style="color:#0ea5e9;">1. Icon Geometry & Stroke Standards</h4>
+          <ul style="padding-left:18px; line-height:1.6; margin:4px 0;">
+            <li><strong>Coordinate ViewBox:</strong> Exactly <code>0 0 64 64</code>. All paths must fit cleanly within a 4px inner margin (active drawing area 4 to 60px).</li>
+            <li><strong>Primary Stroke Weight:</strong> <code>2.0px</code> to <code>2.5px</code> for outer boundaries and primary instrument silhouettes; <code>1.5px</code> to <code>1.8px</code> for internal features.</li>
+            <li><strong>Line Caps & Joins:</strong> Always specify <code>stroke-linecap="round"</code> and <code>stroke-linejoin="round"</code> to avoid sharp miter spikes.</li>
+            <li><strong>Subtle Fills:</strong> 8% to 15% opacity fills (e.g. <code>rgba(14,165,233,0.12)</code>) provide volume without visual clutter.</li>
+          </ul>
+        </div>
+        <div class="flyout-card" style="margin-bottom:12px;">
+          <h4 style="color:#0ea5e9;">2. Standard Scientific Palette Swatches</h4>
+          <table class="shortcut-table" style="font-size:11.5px;">
+            <thead><tr><th>Role</th><th>Color Hex</th><th>RGB Tint</th><th>Scientific Usage</th></tr></thead>
+            <tbody>
+              <tr><td><strong style="color:#0ea5e9;">Primary Accent</strong></td><td><code>#0ea5e9</code> / <code>#0284c7</code></td><td><code>rgba(14,165,233,0.14)</code></td><td>Buffer, fluid volumes, aqueous phases, primary step cards</td></tr>
+              <tr><td><strong style="color:#0d9488;">Enzymatic / Bio</strong></td><td><code>#0d9488</code></td><td><code>rgba(13,148,136,0.14)</code></td><td>Enzymes, catalytic steps, membrane proteins, active fractions</td></tr>
+              <tr><td><strong style="color:#059669;">Sterile / Pass</strong></td><td><code>#059669</code></td><td><code>rgba(5,150,105,0.12)</code></td><td>Sterile goods, quality pass branch, plant biology, wash stages</td></tr>
+              <tr><td><strong style="color:#d97706;">Thermal / Warning</strong></td><td><code>#d97706</code> / <code>#f59e0b</code></td><td><code>rgba(245,158,11,0.14)</code></td><td>Heat incubation, thermal cycling, decision diamonds, caution notes</td></tr>
+              <tr><td><strong style="color:#e11d48;">Danger / Toxic</strong></td><td><code>#e11d48</code></td><td><code>rgba(225,29,72,0.12)</code></td><td>Biohazards, acids/bases, blood specimens, fail/troubleshooting branch</td></tr>
+              <tr><td><strong style="color:#6366f1;">Molecular Tag</strong></td><td><code>#6366f1</code></td><td><code>rgba(99,102,241,0.12)</code></td><td>Antibodies, fluorescent conjugates, purification columns, dry spins</td></tr>
+              <tr><td><strong style="color:#0f172a;">Hardware Chassis</strong></td><td><code>#0f172a</code></td><td><code>#f8fafc</code></td><td>Equipment frames, instrument bezels, high-contrast typography</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="flyout-card">
+          <h4 style="color:#0ea5e9;">3. Flow Steps & Sticky Connectors</h4>
+          <ul style="padding-left:18px; line-height:1.6; margin:4px 0;">
+            <li><strong>Step Cards:</strong> Standard 280 × 170px container with 8px corner radius, top accent bar, and numbered circular badge.</li>
+            <li><strong>Decision Branches:</strong> Rhombus diamond with Yes/No connecting branches pointing to downstream resolution steps.</li>
+            <li><strong>Sticky Routing:</strong> When moving any card on canvas, attached flow arrows automatically recalculate and track the nearest anchor point in real time.</li>
+          </ul>
+        </div>
+      </div>
+      
       <!-- Publication Guidelines -->
       <div class="modal-tab-content" id="mtab-publication">
         <h4 style="margin-top:0;">Academic Journal Specifications (Nature, Science, Cell)</h4>
@@ -1597,7 +1766,11 @@
     isPanning: false,
     lastPan: null,
     clipboard: null,
-    builder: null // { type: 'membrane', points: [] }
+    builder: null, // { type: 'membrane', points: [] }
+    flowColor: '#0ea5e9',
+    flowDirection: 'horizontal',
+    autoConnectFlow: true,
+    stickyConnectors: true
   };
 
   var CANVAS_PRESETS = {
@@ -1623,7 +1796,7 @@
 
   function pushHistory(){
     if (history.suppress) return;
-    var json = JSON.stringify(canvas.toJSON(['id','name','selectable','evented','lockMovementX','lockMovementY','hasControls','hasBorders']));
+    var json = JSON.stringify(canvas.toJSON(['id','name','selectable','evented','lockMovementX','lockMovementY','hasControls','hasBorders','isFlowStep','flowNum','flowTitle','flowDesc','flowColor','cardW','cardH','isFlowConnector','sourceId','targetId','connectorColor','connectorWidth','connectorLabel','isDecision','decisionQuestion','yesLabel','noLabel','decisionColor','isSwimlane','laneOrientation','laneTitle']));
     history.stack = history.stack.slice(0, history.index + 1);
     history.stack.push(json);
     if (history.stack.length > 75) history.stack.shift();
@@ -1969,14 +2142,39 @@
     e.path.set({ name: 'Freehand Path' });
   });
 
-  /* Snapping on movement */
+  /* Snapping & Sticky Connectors on movement */
   canvas.on('object:moving', function(e){
-    if (!state.snap) return;
     var o = e.target;
-    o.set({
-      left: snapVal(o.left),
-      top: snapVal(o.top)
-    });
+    if (state.snap){
+      o.set({
+        left: snapVal(o.left),
+        top: snapVal(o.top)
+      });
+    }
+    if (state.stickyConnectors !== false){
+      updateAttachedConnectors(o);
+    }
+  });
+
+  canvas.on('object:modified', function(e){
+    if (state.stickyConnectors !== false && e.target){
+      updateAttachedConnectors(e.target);
+    }
+    pushHistory();
+  });
+
+  /* Double-click to inspect & edit Flow Step or Decision directly */
+  canvas.on('mouse:dblclick', function(opt){
+    var o = opt.target;
+    if (!o) return;
+    if (o.isFlowStep || o.isDecision){
+      var styleTab = document.querySelector('.side-tab[data-tab="style"]');
+      if (styleTab) styleTab.click();
+      setTimeout(function(){
+        var input = document.getElementById('inspFlowTitle') || document.getElementById('inspDecisionQ');
+        if (input){ input.focus(); input.select(); }
+      }, 60);
+    }
   });
 
   /* Text click-to-place */
@@ -2090,9 +2288,23 @@
   function deleteSelection(){
     var objs = canvas.getActiveObjects();
     if (!objs.length) return;
+    var idsToRemove = objs.map(function(o){ return o.id; });
     objs.forEach(function(o){ canvas.remove(o); });
+
+    // Also remove connected flow arrows if either endpoint was deleted
+    var all = canvas.getObjects().slice();
+    all.forEach(function(o){
+      if (o.isFlowConnector && (idsToRemove.indexOf(o.sourceId) !== -1 || idsToRemove.indexOf(o.targetId) !== -1)){
+        canvas.remove(o);
+      }
+    });
+
     canvas.discardActiveObject();
     canvas.requestRenderAll();
+    pushHistory();
+    refreshLayers();
+    toggleEmptyHint();
+    refreshStatus();
   }
 
   function duplicateSelection(){
@@ -2202,6 +2414,63 @@
         + '</div>';
     });
     wrap.innerHTML = html;
+
+    // Specialized Flow Inspector Listeners
+    if (o.isFlowStep){
+      var flowNumInput = document.getElementById('inspFlowNum');
+      var flowTitleInput = document.getElementById('inspFlowTitle');
+      var flowDescInput = document.getElementById('inspFlowDesc');
+      var btnAddNext = document.getElementById('inspBtnAddNext');
+
+      if (flowNumInput) flowNumInput.addEventListener('change', function(e){
+        updateFlowStepCard(o, parseInt(e.target.value, 10) || 1, o.flowTitle, o.flowDesc, o.flowColor);
+      });
+      if (flowTitleInput) flowTitleInput.addEventListener('input', function(e){
+        updateFlowStepCard(o, o.flowNum, e.target.value, o.flowDesc, o.flowColor);
+      });
+      if (flowDescInput) flowDescInput.addEventListener('input', function(e){
+        updateFlowStepCard(o, o.flowNum, o.flowTitle, e.target.value, o.flowColor);
+      });
+      document.querySelectorAll('#inspFlowSwatches .flow-color-chip').forEach(function(chip){
+        chip.addEventListener('click', function(){
+          document.querySelectorAll('#inspFlowSwatches .flow-color-chip').forEach(function(x){ x.classList.remove('active'); });
+          chip.classList.add('active');
+          updateFlowStepCard(o, o.flowNum, o.flowTitle, o.flowDesc, chip.dataset.color);
+        });
+      });
+      if (btnAddNext) btnAddNext.addEventListener('click', function(){ addNextFlowStep(); });
+    }
+
+    if (o.isDecision){
+      var decQ = document.getElementById('inspDecisionQ');
+      var decYes = document.getElementById('inspDecisionYes');
+      var decNo = document.getElementById('inspDecisionNo');
+      if (decQ) decQ.addEventListener('input', function(e){ updateDecisionCard(o, e.target.value, o.yesLabel, o.noLabel, o.decisionColor); });
+      if (decYes) decYes.addEventListener('input', function(e){ updateDecisionCard(o, o.decisionQuestion, e.target.value, o.noLabel, o.decisionColor); });
+      if (decNo) decNo.addEventListener('input', function(e){ updateDecisionCard(o, o.decisionQuestion, o.yesLabel, e.target.value, o.decisionColor); });
+    }
+
+    if (o.isSwimlane){
+      var laneTitleInput = document.getElementById('inspSwimlaneTitle');
+      if (laneTitleInput) laneTitleInput.addEventListener('input', function(e){
+        o.laneTitle = e.target.value;
+        if (o.item(2)) o.item(2).set('text', e.target.value);
+        canvas.requestRenderAll();
+        pushHistory();
+      });
+    }
+
+    if (o.isFlowConnector){
+      var connLabelInput = document.getElementById('inspConnLabel');
+      if (connLabelInput) connLabelInput.addEventListener('input', function(e){
+        o.connectorLabel = e.target.value;
+        if (o.item(2) && o.item(2).type === 'text') {
+          o.item(2).set('text', e.target.value);
+        }
+        canvas.requestRenderAll();
+        pushHistory();
+      });
+    }
 
     var flattenBtn = document.getElementById('btnFlattenLayers');
     if (flattenBtn){
@@ -2357,7 +2626,52 @@
     var fill = (typeof o.fill === 'string') ? o.fill : '#0ea5e9';
     var stroke = (typeof o.stroke === 'string') ? o.stroke : '#0f172a';
 
-    var html = '<div style="font-size:11px; font-weight:700; text-transform:uppercase; color:#0ea5e9; margin-bottom:8px; letter-spacing:0.5px;">'
+    var flowHeaderHtml = '';
+    if (o.isFlowStep){
+      flowHeaderHtml += '<div class="flyout-card" style="border-left:3px solid ' + (o.flowColor || '#0ea5e9') + '; margin-bottom:12px;">'
+        + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">'
+        + '<h4 style="margin:0; color:#0f172a;">Flow Step Card</h4>'
+        + '<span class="badge-soft" style="font-size:10.5px;">Step ' + (o.flowNum || 1) + '</span></div>'
+        + '<div class="field" style="margin-bottom:6px;"><label style="font-size:11px;">Step Number</label>'
+        + '<input type="number" id="inspFlowNum" class="num-input" value="' + (o.flowNum || 1) + '" min="1" max="99"></div>'
+        + '<div class="field" style="margin-bottom:6px;"><label style="font-size:11px;">Step Title</label>'
+        + '<input type="text" id="inspFlowTitle" class="text-input" value="' + escapeHtml(o.flowTitle || '') + '"></div>'
+        + '<div class="field" style="margin-bottom:8px;"><label style="font-size:11px;">Protocol Notes / Parameters</label>'
+        + '<textarea id="inspFlowDesc" class="text-input" rows="3" style="resize:vertical; font-size:11.5px;">' + escapeHtml(o.flowDesc || '') + '</textarea></div>'
+        + '<div class="field" style="margin-bottom:8px;"><label style="font-size:11px;">Card Accent Swatch</label>'
+        + '<div style="display:flex; gap:6px;" id="inspFlowSwatches">'
+        + ['#0ea5e9','#0d9488','#059669','#d97706','#e11d48','#6366f1'].map(function(c){
+            return '<span class="flow-color-chip'+(o.flowColor===c?' active':'')+'" data-color="'+c+'" style="background:'+c+';"></span>';
+          }).join('')
+        + '</div></div>'
+        + '<div style="display:flex; gap:6px;">'
+        + '<button class="btn btn-accent" id="inspBtnAddNext" style="flex:1; justify-content:center; font-size:11px;">+ Add Next Step</button>'
+        + '</div></div>';
+    } else if (o.isDecision){
+      flowHeaderHtml += '<div class="flyout-card" style="border-left:3px solid ' + (o.decisionColor || '#d97706') + '; margin-bottom:12px;">'
+        + '<h4 style="margin:0 0 6px; color:#0f172a;">Decision Diamond</h4>'
+        + '<div class="field" style="margin-bottom:6px;"><label style="font-size:11px;">Question / Condition</label>'
+        + '<input type="text" id="inspDecisionQ" class="text-input" value="' + escapeHtml(o.decisionQuestion || '') + '"></div>'
+        + '<div class="field" style="margin-bottom:6px;"><label style="font-size:11px;">Yes / Pass Branch Label</label>'
+        + '<input type="text" id="inspDecisionYes" class="text-input" value="' + escapeHtml(o.yesLabel || 'Yes / Pass') + '"></div>'
+        + '<div class="field" style="margin-bottom:8px;"><label style="font-size:11px;">No / Fail Branch Label</label>'
+        + '<input type="text" id="inspDecisionNo" class="text-input" value="' + escapeHtml(o.noLabel || 'No / Fail') + '"></div>'
+        + '</div>';
+    } else if (o.isSwimlane){
+      flowHeaderHtml += '<div class="flyout-card" style="border-left:3px solid #6366f1; margin-bottom:12px;">'
+        + '<h4 style="margin:0 0 6px; color:#0f172a;">Swimlane Divider</h4>'
+        + '<div class="field" style="margin-bottom:6px;"><label style="font-size:11px;">Lane Title</label>'
+        + '<input type="text" id="inspSwimlaneTitle" class="text-input" value="' + escapeHtml(o.laneTitle || '') + '"></div>'
+        + '</div>';
+    } else if (o.isFlowConnector){
+      flowHeaderHtml += '<div class="flyout-card" style="border-left:3px solid ' + (o.connectorColor || '#0ea5e9') + '; margin-bottom:12px;">'
+        + '<h4 style="margin:0 0 6px; color:#0f172a;">Reaction / Flow Connector</h4>'
+        + '<div class="field" style="margin-bottom:6px;"><label style="font-size:11px;">Connector Label (Optional)</label>'
+        + '<input type="text" id="inspConnLabel" class="text-input" placeholder="e.g. Yes, Pass, 10 min..." value="' + escapeHtml(o.connectorLabel || '') + '"></div>'
+        + '</div>';
+    }
+
+    var html = flowHeaderHtml + '<div style="font-size:11px; font-weight:700; text-transform:uppercase; color:#0ea5e9; margin-bottom:8px; letter-spacing:0.5px;">'
       + (o.name || o.type) + '</div>';
 
     // Fill & Stroke
@@ -2661,40 +2975,854 @@
     });
   }
 
+
   /* ======================================================================
-     12. TEMPLATES & SCIENTIFIC BLUEPRINTS
+     11B. LAB FLOW & PROTOCOL WORKFLOW ENGINE
+     Reusable Flow Step Cards, Branching Decisions, Swimlanes & Sticky Connectors
   ====================================================================== */
+
+  function createFlowStep(options){
+    options = options || {};
+    var num = options.num !== undefined ? options.num : 1;
+    var title = options.title || ('Step ' + num + ': Procedure Stage');
+    var desc = options.desc || 'Protocol details, parameters, buffers & incubation...';
+    var color = options.color || '#0ea5e9';
+    var x = options.x !== undefined ? options.x : 100;
+    var y = options.y !== undefined ? options.y : 150;
+    var w = options.w || 280;
+    var h = options.h || 170;
+
+    // Card background
+    var cardBg = new fabric.Rect({
+      left: 0, top: 0, width: w, height: h,
+      fill: '#ffffff', stroke: '#cbd5e1', strokeWidth: 1.5, rx: 8, ry: 8
+    });
+
+    // Top accent border stripe
+    var topStripe = new fabric.Rect({
+      left: 0, top: 0, width: w, height: 5,
+      fill: color, rx: 2, ry: 2
+    });
+
+    // Step badge circle
+    var badge = new fabric.Circle({
+      left: 14, top: 16, radius: 13, fill: color, originX: 'left', originY: 'top'
+    });
+
+    // Step number text
+    var badgeText = new fabric.Text(String(num), {
+      left: 27, top: 29, fontSize: 13, fontWeight: 700, fill: '#ffffff',
+      fontFamily: 'IBM Plex Sans', originX: 'center', originY: 'center'
+    });
+
+    // Step title text
+    var titleText = new fabric.IText(title, {
+      left: 48, top: 20, fontSize: 14, fontWeight: 600, fill: '#0f172a',
+      fontFamily: 'IBM Plex Sans', width: w - 58
+    });
+
+    // Step description text
+    var descText = new fabric.IText(desc, {
+      left: 14, top: 56, fontSize: 11.5, fill: '#475569',
+      fontFamily: 'IBM Plex Sans', width: w - 28, lineHeight: 1.3
+    });
+
+    var group = new fabric.Group([cardBg, topStripe, badge, badgeText, titleText, descText], {
+      left: x, top: y,
+      name: 'Flow Step ' + num,
+      isFlowStep: true,
+      flowNum: num,
+      flowTitle: title,
+      flowDesc: desc,
+      flowColor: color,
+      cardW: w,
+      cardH: h
+    });
+    idFor(group);
+    return group;
+  }
+
+  function updateFlowStepCard(group, num, title, desc, color){
+    if (!group || !group.isFlowStep) return;
+    if (num !== undefined) group.flowNum = num;
+    if (title !== undefined) group.flowTitle = title;
+    if (desc !== undefined) group.flowDesc = desc;
+    if (color !== undefined) group.flowColor = color;
+
+    if (group.item(1) && group.flowColor) group.item(1).set('fill', group.flowColor);
+    if (group.item(2) && group.flowColor) group.item(2).set('fill', group.flowColor);
+    if (group.item(3) && group.flowNum !== undefined) group.item(3).set('text', String(group.flowNum));
+    if (group.item(4) && group.flowTitle !== undefined) group.item(4).set('text', group.flowTitle);
+    if (group.item(5) && group.flowDesc !== undefined) group.item(5).set('text', group.flowDesc);
+
+    group.set('name', 'Flow Step ' + group.flowNum);
+    canvas.requestRenderAll();
+    pushHistory();
+    refreshLayers();
+  }
+
+  function createDecisionShape(options){
+    options = options || {};
+    var question = options.question || 'Confluency >= 80%?';
+    var yesLabel = options.yesLabel || 'Yes / Pass';
+    var noLabel = options.noLabel || 'No / Fail';
+    var color = options.color || '#d97706';
+    var x = options.x !== undefined ? options.x : 200;
+    var y = options.y !== undefined ? options.y : 150;
+    var w = options.w || 200;
+    var h = options.h || 140;
+
+    var points = [
+      { x: w / 2, y: 0 },
+      { x: w, y: h / 2 },
+      { x: w / 2, y: h },
+      { x: 0, y: h / 2 }
+    ];
+    var diamond = new fabric.Polygon(points, {
+      left: 0, top: 0,
+      fill: 'rgba(245, 158, 11, 0.12)',
+      stroke: color,
+      strokeWidth: 2.2,
+      strokeLineJoin: 'round'
+    });
+
+    var text = new fabric.IText(question, {
+      left: w / 2, top: h / 2,
+      fontSize: 12.5,
+      fontWeight: 600,
+      fontFamily: 'IBM Plex Sans',
+      fill: '#0f172a',
+      textAlign: 'center',
+      originX: 'center',
+      originY: 'center',
+      width: w - 40
+    });
+
+    var group = new fabric.Group([diamond, text], {
+      left: x, top: y,
+      name: 'Decision Diamond',
+      isDecision: true,
+      decisionQuestion: question,
+      yesLabel: yesLabel,
+      noLabel: noLabel,
+      decisionColor: color,
+      width: w,
+      height: h
+    });
+    idFor(group);
+    return group;
+  }
+
+  function updateDecisionCard(group, question, yesLabel, noLabel, color){
+    if (!group || !group.isDecision) return;
+    if (question !== undefined) group.decisionQuestion = question;
+    if (yesLabel !== undefined) group.yesLabel = yesLabel;
+    if (noLabel !== undefined) group.noLabel = noLabel;
+    if (color !== undefined) group.decisionColor = color;
+
+    if (group.item(0) && group.decisionColor) group.item(0).set('stroke', group.decisionColor);
+    if (group.item(1) && group.decisionQuestion !== undefined) group.item(1).set('text', group.decisionQuestion);
+
+    canvas.requestRenderAll();
+    pushHistory();
+  }
+
+  function createSwimlanes(options){
+    options = options || {};
+    var lanes = options.lanes || ['Lane 1: Upstream Preparation', 'Lane 2: Downstream Analysis'];
+    var orientation = options.orientation || 'horizontal';
+    var startX = options.startX !== undefined ? options.startX : 50;
+    var startY = options.startY !== undefined ? options.startY : 120;
+    var totalW = options.width || (canvas.getWidth() - 100);
+    var totalH = options.height || (canvas.getHeight() - 160);
+    var count = lanes.length;
+
+    var colors = ['#0ea5e9', '#0d9488', '#6366f1', '#f59e0b'];
+    var groups = [];
+
+    lanes.forEach(function(laneTitle, idx){
+      var accent = colors[idx % colors.length];
+      if (orientation === 'horizontal'){
+        var laneH = Math.floor(totalH / count);
+        var laneY = startY + idx * laneH;
+        var bg = new fabric.Rect({
+          left: startX, top: laneY, width: totalW, height: laneH,
+          fill: idx % 2 === 0 ? 'rgba(248, 250, 252, 0.7)' : 'rgba(241, 245, 249, 0.4)',
+          stroke: '#cbd5e1', strokeWidth: 1.5, strokeDashArray: [5, 4]
+        });
+        var headerBar = new fabric.Rect({
+          left: startX, top: laneY, width: 6, height: laneH,
+          fill: accent
+        });
+        var label = new fabric.IText(laneTitle, {
+          left: startX + 16, top: laneY + 12,
+          fontSize: 13, fontWeight: 700, fontFamily: 'IBM Plex Sans',
+          fill: '#334155'
+        });
+        var laneGroup = new fabric.Group([bg, headerBar, label], {
+          name: 'Swimlane: ' + laneTitle,
+          isSwimlane: true,
+          laneOrientation: 'horizontal',
+          laneTitle: laneTitle
+        });
+        idFor(laneGroup);
+        canvas.add(laneGroup);
+        canvas.sendToBack(laneGroup);
+        groups.push(laneGroup);
+      } else {
+        var laneW = Math.floor(totalW / count);
+        var laneX = startX + idx * laneW;
+        var bgV = new fabric.Rect({
+          left: laneX, top: startY, width: laneW, height: totalH,
+          fill: idx % 2 === 0 ? 'rgba(248, 250, 252, 0.7)' : 'rgba(241, 245, 249, 0.4)',
+          stroke: '#cbd5e1', strokeWidth: 1.5, strokeDashArray: [5, 4]
+        });
+        var headerBarV = new fabric.Rect({
+          left: laneX, top: startY, width: laneW, height: 5,
+          fill: accent
+        });
+        var labelV = new fabric.IText(laneTitle, {
+          left: laneX + 14, top: startY + 12,
+          fontSize: 13, fontWeight: 700, fontFamily: 'IBM Plex Sans',
+          fill: '#334155'
+        });
+        var laneGroupV = new fabric.Group([bgV, headerBarV, labelV], {
+          name: 'Swimlane: ' + laneTitle,
+          isSwimlane: true,
+          laneOrientation: 'vertical',
+          laneTitle: laneTitle
+        });
+        idFor(laneGroupV);
+        canvas.add(laneGroupV);
+        canvas.sendToBack(laneGroupV);
+        groups.push(laneGroupV);
+      }
+    });
+
+    canvas.requestRenderAll();
+    pushHistory();
+    showToast('Added ' + count + ' swimlanes');
+    return groups;
+  }
+
+  function createFlowConnector(sourceObj, targetObj, color, label){
+    color = color || '#0ea5e9';
+    var sB = sourceObj.getBoundingRect();
+    var tB = targetObj.getBoundingRect();
+
+    var x1, y1, x2, y2;
+    if (tB.left >= sB.left + sB.width * 0.5){
+      x1 = sB.left + sB.width + 4;
+      y1 = sB.top + sB.height / 2;
+      x2 = tB.left - 4;
+      y2 = tB.top + tB.height / 2;
+    } else if (tB.top >= sB.top + sB.height * 0.7){
+      x1 = sB.left + sB.width / 2;
+      y1 = sB.top + sB.height + 4;
+      x2 = tB.left + tB.width / 2;
+      y2 = tB.top - 4;
+    } else if (tB.top + tB.height <= sB.top + sB.height * 0.3){
+      x1 = sB.left + sB.width / 2;
+      y1 = sB.top - 4;
+      x2 = tB.left + tB.width / 2;
+      y2 = tB.top + tB.height + 4;
+    } else {
+      x1 = sB.left - 4;
+      y1 = sB.top + sB.height / 2;
+      x2 = tB.left + tB.width + 4;
+      y2 = tB.top + tB.height / 2;
+    }
+
+    var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+    var line = new fabric.Line([x1, y1, x2, y2], { stroke: color, strokeWidth: 2.5, strokeLineCap: 'round' });
+    var head = new fabric.Triangle({
+      left: x2, top: y2, width: 14, height: 16, fill: color,
+      angle: angle + 90, originX: 'center', originY: 'center'
+    });
+
+    var items = [line, head];
+    if (label){
+      var mx = (x1 + x2) / 2;
+      var my = (y1 + y2) / 2 - 12;
+      var bgText = new fabric.Rect({
+        left: mx, top: my, rx: 3, ry: 3,
+        fill: '#ffffff', stroke: color, strokeWidth: 1, originX: 'center', originY: 'center'
+      });
+      var lbl = new fabric.Text(label, {
+        left: mx, top: my, fontSize: 11, fontWeight: 700, fill: color,
+        fontFamily: 'IBM Plex Sans', originX: 'center', originY: 'center'
+      });
+      bgText.set({ width: lbl.width + 8, height: lbl.height + 4 });
+      items.push(bgText, lbl);
+    }
+
+    var group = new fabric.Group(items, {
+      name: 'Flow Connector',
+      isFlowConnector: true,
+      sourceId: sourceObj.id,
+      targetId: targetObj.id,
+      connectorColor: color,
+      connectorLabel: label || ''
+    });
+    idFor(group);
+    canvas.add(group);
+    return group;
+  }
+
+  function addNextFlowStep(){
+    var cards = canvas.getObjects().filter(function(o){ return o.isFlowStep; });
+    var nextNum = 1;
+    var lastCard = null;
+
+    if (cards.length){
+      cards.sort(function(a, b){ return (a.flowNum || 0) - (b.flowNum || 0); });
+      lastCard = cards[cards.length - 1];
+      nextNum = (lastCard.flowNum || cards.length) + 1;
+    }
+
+    var cardW = 280, cardH = 170, gap = 60;
+    var nextX = 60, nextY = 150;
+
+    if (lastCard){
+      var dir = (state.flowDirection || 'horizontal');
+      if (dir === 'horizontal'){
+        nextX = lastCard.left + cardW + gap;
+        nextY = lastCard.top;
+        if (nextX + cardW > canvas.getWidth() - 40){
+          nextX = 60;
+          nextY = lastCard.top + cardH + 70;
+        }
+      } else {
+        nextX = lastCard.left;
+        nextY = lastCard.top + cardH + gap;
+      }
+      if (nextY + cardH > canvas.getHeight() - 40){
+        setCanvasSize(canvas.getWidth(), nextY + cardH + 80);
+      }
+    }
+
+    var colorTheme = state.flowColor || '#0ea5e9';
+    var newCard = createFlowStep({
+      num: nextNum,
+      title: 'Step ' + nextNum + ': Protocol Action',
+      desc: 'Specify reaction parameters, incubation, or conditions...',
+      color: colorTheme,
+      x: nextX,
+      y: nextY,
+      w: cardW,
+      h: cardH
+    });
+
+    canvas.add(newCard);
+
+    if (lastCard && (state.autoConnectFlow !== false)){
+      createFlowConnector(lastCard, newCard, colorTheme);
+    }
+
+    canvas.setActiveObject(newCard);
+    canvas.requestRenderAll();
+    pushHistory();
+    refreshLayers();
+    toggleEmptyHint();
+    refreshStatus();
+    showToast('Added Flow Step ' + nextNum);
+  }
+
+  function updateAttachedConnectors(movedObj){
+    if (!movedObj || !movedObj.id) return;
+    var connectors = canvas.getObjects().filter(function(o){
+      return o.isFlowConnector && (o.sourceId === movedObj.id || o.targetId === movedObj.id);
+    });
+    if (!connectors.length) return;
+
+    connectors.forEach(function(c){
+      var src = findObjectById(c.sourceId);
+      var tgt = findObjectById(c.targetId);
+      if (!src || !tgt) return;
+
+      var sB = src.getBoundingRect();
+      var tB = tgt.getBoundingRect();
+
+      var x1, y1, x2, y2;
+      if (tB.left >= sB.left + sB.width * 0.5){
+        x1 = sB.left + sB.width + 4;
+        y1 = sB.top + sB.height / 2;
+        x2 = tB.left - 4;
+        y2 = tB.top + tB.height / 2;
+      } else if (tB.top >= sB.top + sB.height * 0.7){
+        x1 = sB.left + sB.width / 2;
+        y1 = sB.top + sB.height + 4;
+        x2 = tB.left + tB.width / 2;
+        y2 = tB.top - 4;
+      } else if (tB.top + tB.height <= sB.top + sB.height * 0.3){
+        x1 = sB.left + sB.width / 2;
+        y1 = sB.top - 4;
+        x2 = tB.left + tB.width / 2;
+        y2 = tB.top + tB.height + 4;
+      } else {
+        x1 = sB.left - 4;
+        y1 = sB.top + sB.height / 2;
+        x2 = tB.left + tB.width + 4;
+        y2 = tB.top + tB.height / 2;
+      }
+
+      var color = c.connectorColor || '#0ea5e9';
+      var label = c.connectorLabel || '';
+      var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+      var line = new fabric.Line([x1, y1, x2, y2], { stroke: color, strokeWidth: 2.5, strokeLineCap: 'round' });
+      var head = new fabric.Triangle({
+        left: x2, top: y2, width: 14, height: 16, fill: color,
+        angle: angle + 90, originX: 'center', originY: 'center'
+      });
+      var items = [line, head];
+      if (label){
+        var mx = (x1 + x2) / 2;
+        var my = (y1 + y2) / 2 - 12;
+        var bgText = new fabric.Rect({
+          left: mx, top: my, rx: 3, ry: 3,
+          fill: '#ffffff', stroke: color, strokeWidth: 1, originX: 'center', originY: 'center'
+        });
+        var lbl = new fabric.Text(label, {
+          left: mx, top: my, fontSize: 11, fontWeight: 700, fill: color,
+          fontFamily: 'IBM Plex Sans', originX: 'center', originY: 'center'
+        });
+        bgText.set({ width: lbl.width + 8, height: lbl.height + 4 });
+        items.push(bgText, lbl);
+      }
+
+      var newGroup = new fabric.Group(items, {
+        name: c.name || 'Flow Connector',
+        isFlowConnector: true,
+        sourceId: c.sourceId,
+        targetId: c.targetId,
+        connectorColor: color,
+        connectorLabel: label,
+        id: c.id
+      });
+
+      var idx = canvas.getObjects().indexOf(c);
+      if (idx !== -1){
+        canvas.insertAt(newGroup, idx);
+        canvas.remove(c);
+      }
+    });
+
+    canvas.requestRenderAll();
+  }
+
+  function initWorkflowFlyout(){
+    var btnAddStep = document.getElementById('btnFlyoutAddStep');
+    if (btnAddStep) btnAddStep.addEventListener('click', function(e){
+      e.preventDefault();
+      addNextFlowStep();
+    });
+
+    var btnAddDec = document.getElementById('btnFlyoutAddDecision');
+    if (btnAddDec) btnAddDec.addEventListener('click', function(e){
+      e.preventDefault();
+      var center = canvas.getCenter();
+      var dec = createDecisionShape({
+        x: snapVal(center.left - 100),
+        y: snapVal(center.top - 70),
+        question: 'Confluency >= 80%?',
+        color: state.flowColor || '#d97706'
+      });
+      canvas.add(dec);
+      canvas.setActiveObject(dec);
+      canvas.requestRenderAll();
+      pushHistory();
+      refreshLayers();
+      toggleEmptyHint();
+      refreshStatus();
+      showToast('Added Decision Diamond');
+    });
+
+    var btnAddSwim = document.getElementById('btnFlyoutAddSwimlane');
+    if (btnAddSwim) btnAddSwim.addEventListener('click', function(e){
+      e.preventDefault();
+      createSwimlanes({
+        lanes: ['Phase 1: Upstream Processing', 'Phase 2: Assay Execution', 'Phase 3: Data Analysis'],
+        orientation: state.flowDirection || 'horizontal'
+      });
+    });
+
+    // Swatches
+    document.querySelectorAll('#flowColorPalette .flow-color-chip').forEach(function(chip){
+      chip.addEventListener('click', function(){
+        document.querySelectorAll('#flowColorPalette .flow-color-chip').forEach(function(x){ x.classList.remove('active'); });
+        chip.classList.add('active');
+        state.flowColor = chip.dataset.color;
+      });
+    });
+
+    // Direction
+    var dirSeg = document.getElementById('flowDirSeg');
+    if (dirSeg){
+      dirSeg.querySelectorAll('button').forEach(function(b){
+        b.addEventListener('click', function(){
+          dirSeg.querySelectorAll('button').forEach(function(x){ x.classList.remove('active'); });
+          b.classList.add('active');
+          state.flowDirection = b.dataset.dir;
+        });
+      });
+    }
+
+    // Toggles
+    var chkAuto = document.getElementById('chkAutoConnect');
+    if (chkAuto) chkAuto.addEventListener('change', function(e){ state.autoConnectFlow = e.target.checked; });
+    var chkSticky = document.getElementById('chkStickyConnectors');
+    if (chkSticky) chkSticky.addEventListener('change', function(e){ state.stickyConnectors = e.target.checked; });
+
+    // Presets
+    var p3 = document.getElementById('btnPreset3Step');
+    if (p3) p3.addEventListener('click', function(){
+      buildFlowProtocol({
+        name: '3-Step Linear Flow',
+        width: 1200, height: 500,
+        title: '3-Stage Linear Process Workflow',
+        steps: [
+          { num: 1, title: 'Sample Intake', desc: 'Isolate & verify starting material', color: '#0ea5e9', x: 60, y: 140 },
+          { num: 2, title: 'Target Reaction', desc: 'Perform incubation & enzyme assay', color: '#0d9488', x: 420, y: 140 },
+          { num: 3, title: 'Readout / Output', desc: 'Quantify optical signal & report', color: '#6366f1', x: 780, y: 140 }
+        ]
+      });
+    });
+
+    var p4 = document.getElementById('btnPreset4Step');
+    if (p4) p4.addEventListener('click', function(){ loadProtocolWorkflowTemplate(); });
+
+    var pDec = document.getElementById('btnPresetDecision');
+    if (pDec) pDec.addEventListener('click', function(){
+      buildFlowProtocol(PROTOCOL_TEMPLATES.cell_passage);
+    });
+
+    var p2Day = document.getElementById('btnPreset2Day');
+    if (p2Day) p2Day.addEventListener('click', function(){
+      setCanvasSize(1400, 750);
+      canvas.clear();
+      canvas.backgroundColor = '#ffffff';
+      var title = new fabric.IText('2-Day Laboratory Experimental Workflow', {
+        left: 60, top: 40, fontSize: 24, fontWeight: 700, fontFamily: 'IBM Plex Sans', fill: '#0f172a'
+      });
+      canvas.add(title);
+      createSwimlanes({
+        lanes: ['Day 1: Cell Seeding & Transfection', 'Day 2: Lysis, Staining & Imaging'],
+        startY: 100,
+        height: 600,
+        orientation: 'horizontal'
+      });
+      var s1 = createFlowStep({ num: 1, title: 'Day 1: Cell Seeding', desc: 'Seed 2.5x10^5 cells per well in 6-well plate', color: '#0ea5e9', x: 80, y: 170 });
+      var s2 = createFlowStep({ num: 2, title: 'Day 1: Transfection', desc: 'Deliver CRISPR/Cas9 plasmid using Lipofectamine', color: '#0d9488', x: 440, y: 170 });
+      var s3 = createFlowStep({ num: 3, title: 'Day 2: Harvesting', desc: 'Wash with DPBS, lyse in RIPA buffer with protease inhibitors', color: '#6366f1', x: 80, y: 460 });
+      var s4 = createFlowStep({ num: 4, title: 'Day 2: Detection', desc: 'Run SDS-PAGE & analyze fluorescence microscopy', color: '#059669', x: 440, y: 460 });
+      canvas.add(s1, s2, s3, s4);
+      createFlowConnector(s1, s2, '#0ea5e9');
+      createFlowConnector(s2, s3, '#64748b', 'Overnight (16h)');
+      createFlowConnector(s3, s4, '#6366f1');
+      canvas.renderAll();
+      pushHistory();
+      refreshLayers();
+      toggleEmptyHint();
+      refreshStatus();
+      showToast('Loaded 2-Day Swimlane Workflow');
+    });
+  }
+
+  /* ======================================================================
+     12. TEMPLATES & DATA-DRIVEN SCIENTIFIC BLUEPRINTS
+  ====================================================================== */
+
+  var PROTOCOL_TEMPLATES = {
+    assay_pipeline: {
+      name: 'Experimental Assay Pipeline',
+      badge: 'Assay',
+      badgeColor: 'teal',
+      width: 1600,
+      height: 650,
+      title: 'Experimental Protocol & Assay Pipeline',
+      subtitle: 'Standard 4-stage laboratory pipeline: Sample Prep -> Centrifugation -> Assay -> Quantification',
+      steps: [
+        { num: 1, title: 'Sample Prep', desc: 'Cell harvesting & lysis buffer treatment on ice', color: '#0ea5e9', x: 60, y: 150, w: 290, h: 360, iconId: 'eppendorf' },
+        { num: 2, title: 'Fractionation', desc: 'High-speed 14,000 rpm centrifugation to pellet debris', color: '#0d9488', x: 440, y: 150, w: 290, h: 360, iconId: 'centrifuge' },
+        { num: 3, title: 'Assay Binding', desc: 'ELISA / antibody incubation at 37°C with primary antibodies', color: '#6366f1', x: 820, y: 150, w: 290, h: 360, iconId: 'plate96' },
+        { num: 4, title: 'Quantification', desc: 'Fluorescent signal readout (OD450) & statistical analysis', color: '#f59e0b', x: 1200, y: 150, w: 290, h: 360, iconId: 'spectrophotometer' }
+      ]
+    },
+    pcr_amplification: {
+      name: 'PCR Amplification Protocol',
+      badge: 'PCR',
+      badgeColor: 'purple',
+      width: 1750,
+      height: 760,
+      title: 'PCR Amplification & Gel Verification Protocol',
+      subtitle: 'Thermal cycling workflow: Reaction Mix -> Cycling -> Gel QC Check -> Purification / Optimization',
+      steps: [
+        { id: 'pcr_1', num: 1, title: 'Reaction Master Mix', desc: 'Assemble on ice: 2X Taq buffer, 0.5 µM primers, 200 µM dNTPs, 50 ng DNA template, nuclease-free H2O.', color: '#0ea5e9', x: 60, y: 150, w: 270, h: 170, iconId: 'eppendorf' },
+        { id: 'pcr_2', num: 2, title: 'Thermal Cycling', desc: 'Initial 95°C 3 min; 32 cycles: Denature 95°C (30s) -> Anneal 58°C (30s) -> Extend 72°C (1 min/kb).', color: '#0d9488', x: 390, y: 150, w: 270, h: 170, iconId: 'thermocycler' },
+        { id: 'pcr_dec', type: 'decision', question: 'Single band on agarose gel?', yesLabel: 'Yes: Target Band', noLabel: 'No: Off-target', color: '#d97706', x: 720, y: 165, w: 200, h: 140 },
+        { id: 'pcr_clean', num: 4, title: 'Clean & Purify', desc: 'Spin-column purification to remove polymerase & dNTPs; elute in 30 µL TE buffer (pH 8.0).', color: '#059669', x: 1040, y: 120, w: 280, h: 170, iconId: 'centrifuge' },
+        { id: 'pcr_seq', num: 5, title: 'Downstream Sanger / NGS', desc: 'Quantitate A260/A280 on spectrophotometer; submit amplicon for capillary Sanger sequencing.', color: '#6366f1', x: 1400, y: 120, w: 280, h: 170, iconId: 'spectrophotometer' },
+        { id: 'pcr_opt', num: 6, title: 'Optimization Loop', desc: 'Perform gradient annealing PCR (±4°C), add 5% DMSO, or titrate MgCl2 / primer concentrations.', color: '#e11d48', x: 1040, y: 410, w: 280, h: 170, iconId: 'warning_triangle' }
+      ],
+      connectors: [
+        { from: 'pcr_1', to: 'pcr_2', color: '#0ea5e9' },
+        { from: 'pcr_2', to: 'pcr_dec', color: '#0d9488' },
+        { from: 'pcr_dec', to: 'pcr_clean', color: '#059669', label: 'Yes: Specific Band' },
+        { from: 'pcr_clean', to: 'pcr_seq', color: '#6366f1' },
+        { from: 'pcr_dec', to: 'pcr_opt', color: '#e11d48', label: 'No: Smear / Primer Dimer' }
+      ]
+    },
+    dna_extraction: {
+      name: 'DNA/RNA Column Extraction',
+      badge: 'Extraction',
+      badgeColor: 'teal',
+      width: 1800,
+      height: 650,
+      title: 'Silica Spin-Column Nucleic Acid Extraction SOP',
+      subtitle: '5-stage silica membrane protocol: Lysis, Binding, Ethanol Washes, Dry Spin, and Pure Elution',
+      steps: [
+        { num: 1, title: 'Cell Lysis', desc: 'Resuspend pellet in chaotropic lysis buffer + 20 µL Proteinase K. Incubate at 56°C for 10 min.', color: '#0ea5e9', x: 60, y: 150, w: 270, h: 170, iconId: 'beaker' },
+        { num: 2, title: 'Column Binding', desc: 'Add 100% ethanol to lysate. Transfer mixture to silica spin column. Centrifuge at 12,000 rpm for 1 min.', color: '#0d9488', x: 400, y: 150, w: 270, h: 170, iconId: 'centrifuge' },
+        { num: 3, title: 'Wash Salts & Protein', desc: 'Add 500 µL Wash Buffer 1 (guanidine), spin 1 min. Add 500 µL Wash Buffer 2 (ethanol), spin 1 min.', color: '#6366f1', x: 740, y: 150, w: 270, h: 170, iconId: 'drop_volume' },
+        { num: 4, title: 'Dry Spin Matrix', desc: 'Centrifuge empty column at maximum 14,000 rpm for 2 min to eliminate residual ethanol completely.', color: '#d97706', x: 1080, y: 150, w: 270, h: 170, iconId: 'rpm_speed' },
+        { num: 5, title: 'Elution & Storage', desc: 'Place column in clean 1.5 mL tube. Add 50 µL nuclease-free water, incubate 2 min, spin to collect pure DNA.', color: '#059669', x: 1420, y: 150, w: 270, h: 170, iconId: 'freezer_ult' }
+      ]
+    },
+    cell_passage: {
+      name: 'Mammalian Cell Passage SOP',
+      badge: 'Culture',
+      badgeColor: 'emerald',
+      width: 1800,
+      height: 760,
+      title: 'Mammalian Cell Passage & Maintenance SOP',
+      subtitle: 'Aseptic subculturing: Confluency QC check, DPBS wash, Trypsin dissociation, and Reseeding',
+      steps: [
+        { id: 'cp_1', num: 1, title: 'Microscope Inspection', desc: 'Assess morphology, contamination check, and estimate monolayer surface confluency under microscope.', color: '#0ea5e9', x: 60, y: 150, w: 260, h: 170, iconId: 'microscope' },
+        { id: 'cp_dec', type: 'decision', question: 'Confluency >= 80%?', yesLabel: '>= 80% (Pass)', noLabel: '< 80% (Incubate)', color: '#d97706', x: 380, y: 165, w: 190, h: 140 },
+        { id: 'cp_tryp', num: 3, title: 'DPBS Wash & Trypsin', desc: 'Aspirate media. Rinse with sterile DPBS. Add 0.25% Trypsin-EDTA, incubate at 37°C for 3-5 min until detached.', color: '#0d9488', x: 670, y: 130, w: 270, h: 170, iconId: 'incubator' },
+        { id: 'cp_pellet', num: 4, title: 'Quench & Pellet', desc: 'Add 2X volume complete serum media to neutralize trypsin. Centrifuge at 1,200 rpm for 5 min to pellet cells.', color: '#6366f1', x: 1010, y: 130, w: 270, h: 170, iconId: 'centrifuge' },
+        { id: 'cp_seed', num: 5, title: 'Count & Re-seed', desc: 'Resuspend in fresh media. Count via hemocytometer with trypan blue. Seed new T-75 flasks at 1:4 to 1:8 split ratio.', color: '#059669', x: 1350, y: 130, w: 270, h: 170, iconId: 'petri' },
+        { id: 'cp_hold', num: 6, title: 'Continue Incubation', desc: 'Return flask to 37°C, 5% CO2 humidified incubator. Replace with fresh complete medium every 48 hours.', color: '#64748b', x: 670, y: 410, w: 270, h: 170, iconId: 'incubator' }
+      ],
+      connectors: [
+        { from: 'cp_1', to: 'cp_dec', color: '#0ea5e9' },
+        { from: 'cp_dec', to: 'cp_tryp', color: '#059669', label: '>= 80% (Ready)' },
+        { from: 'cp_tryp', to: 'cp_pellet', color: '#0d9488' },
+        { from: 'cp_pellet', to: 'cp_seed', color: '#6366f1' },
+        { from: 'cp_dec', to: 'cp_hold', color: '#d97706', label: '< 80% (Sub-confluent)' }
+      ]
+    },
+    autoclave_cycle: {
+      name: 'Autoclave Sterilization & QC',
+      badge: 'Sterilization',
+      badgeColor: 'amber',
+      width: 1700,
+      height: 700,
+      title: 'Autoclave Steam Sterilization & Biological QC Workflow',
+      subtitle: 'Gravity-displacement sterilization cycle validation & spore ampoule verification',
+      steps: [
+        { id: 'ac_1', num: 1, title: 'Packaging & Indicator', desc: 'Place glassware/tips in autoclave pouch. Apply Class 5 chemical indicator integrator and autoclave tape.', color: '#0ea5e9', x: 60, y: 140, w: 260, h: 170, iconId: 'autoclave' },
+        { id: 'ac_2', num: 2, title: 'Saturated Steam Cycle', desc: 'Lock chamber door. Run gravity cycle at 121°C (250°F) under 15 psi (1.05 bar) saturated steam for 30 min.', color: '#0d9488', x: 380, y: 140, w: 260, h: 170, iconId: 'thermometer' },
+        { id: 'ac_3', num: 3, title: 'Exhaust & Cool Down', desc: 'Slow exhaust for liquid media, fast exhaust for dry instruments. Cool chamber to < 80°C before opening.', color: '#6366f1', x: 700, y: 140, w: 260, h: 170, iconId: 'timer_clock' },
+        { id: 'ac_dec', type: 'decision', question: 'Biological spore QC negative?', yesLabel: 'Pass: Purple (Sterile)', noLabel: 'Fail: Yellow (Growth)', color: '#d97706', x: 1020, y: 155, w: 200, h: 140, iconId: 'biohazard' },
+        { id: 'ac_pass', num: 5, title: 'Release to Sterile Stock', desc: 'Tape turned black & integrator passed. Label with autoclave batch ID and date; place in sterile inventory.', color: '#059669', x: 1330, y: 120, w: 270, h: 170, iconId: 'tube_rack' },
+        { id: 'ac_fail', num: 6, title: 'Quarantine & Service', desc: 'Spore vial turned yellow indicating microbial survival. Quarantine entire batch, inspect seals, recalibrate.', color: '#e11d48', x: 1330, y: 390, w: 270, h: 170, iconId: 'warning_triangle' }
+      ],
+      connectors: [
+        { from: 'ac_1', to: 'ac_2', color: '#0ea5e9' },
+        { from: 'ac_2', to: 'ac_3', color: '#0d9488' },
+        { from: 'ac_3', to: 'ac_dec', color: '#6366f1' },
+        { from: 'ac_dec', to: 'ac_pass', color: '#059669', label: 'Pass (Sterile)' },
+        { from: 'ac_dec', to: 'ac_fail', color: '#e11d48', label: 'Fail (Growth)' }
+      ]
+    },
+    spill_response: {
+      name: 'Chemical & Biohazard Spill SOP',
+      badge: 'Safety SOP',
+      badgeColor: 'rose',
+      width: 1750,
+      height: 680,
+      title: 'Laboratory Chemical Spill & Biohazard Emergency SOP',
+      subtitle: 'Critical incident response: Evacuate, Don emergency PPE, Neutralize & Absorb, and Biohazard disposal',
+      steps: [
+        { num: 1, title: 'Alert & Evacuate', desc: 'Immediately notify all laboratory personnel. Evacuate affected bay, close doors, and consult Safety Data Sheet (SDS).', color: '#e11d48', x: 60, y: 150, w: 270, h: 170, iconId: 'ghs_corrosive' },
+        { num: 2, title: 'Don Specialized PPE', desc: 'Put on double nitrile gloves, full chemical splash goggles, lab barrier coat/apron, and vapor respirator if volatile.', color: '#d97706', x: 400, y: 150, w: 270, h: 170, iconId: 'goggles' },
+        { num: 3, title: 'Contain & Neutralize', desc: 'Surround perimeter with absorbent spill pillows. For acids use sodium bicarbonate; for bases use citric acid neutralizer.', color: '#f59e0b', x: 740, y: 150, w: 270, h: 170, iconId: 'ph_indicator' },
+        { num: 4, title: 'Disinfect Surface', desc: 'Clean area with freshly diluted 1:10 bleach solution or broad-spectrum disinfectant. Maintain 20 min contact time.', color: '#0d9488', x: 1080, y: 150, w: 270, h: 170, iconId: 'eyewash' },
+        { num: 5, title: 'Hazardous Waste Disposal', desc: 'Place all contaminated materials into labeled yellow hazardous waste drum. Seal, notify EHS, and file incident report.', color: '#0f172a', x: 1420, y: 150, w: 270, h: 170, iconId: 'sharps_container' }
+      ]
+    }
+  };
+
+  function buildFlowProtocol(spec){
+    if (!spec) return;
+    setCanvasSize(spec.width || 1600, spec.height || 650);
+    canvas.clear();
+    canvas.backgroundColor = '#ffffff';
+
+    if (spec.title){
+      var title = new fabric.IText(spec.title, {
+        left: 60, top: 40, fontSize: 24, fontWeight: 700, fontFamily: 'IBM Plex Sans', fill: '#0f172a',
+        name: 'Header Title'
+      });
+      canvas.add(title);
+    }
+    if (spec.subtitle){
+      var sub = new fabric.Text(spec.subtitle, {
+        left: 60, top: 76, fontSize: 13, fontWeight: 500, fontFamily: 'IBM Plex Sans', fill: '#64748b',
+        name: 'Header Subtitle'
+      });
+      canvas.add(sub);
+    }
+
+    if (spec.swimlanes && spec.swimlanes.length){
+      createSwimlanes({
+        lanes: spec.swimlanes,
+        startY: 110,
+        startX: 50,
+        width: (spec.width || 1600) - 100,
+        height: (spec.height || 650) - 160,
+        orientation: spec.swimlaneOrientation || 'horizontal'
+      });
+    }
+
+    var stepMap = {};
+    var prevObj = null;
+
+    (spec.steps || []).forEach(function(s, idx){
+      var obj;
+      if (s.type === 'decision'){
+        obj = createDecisionShape({
+          question: s.question,
+          yesLabel: s.yesLabel || 'Yes / Pass',
+          noLabel: s.noLabel || 'No / Fail',
+          color: s.color || '#d97706',
+          x: s.x,
+          y: s.y,
+          w: s.w || 200,
+          h: s.h || 140
+        });
+        canvas.add(obj);
+      } else {
+        obj = createFlowStep({
+          num: s.num || (idx + 1),
+          title: s.title,
+          desc: s.desc,
+          color: s.color || '#0ea5e9',
+          x: s.x,
+          y: s.y,
+          w: s.w || 280,
+          h: s.h || 170
+        });
+        canvas.add(obj);
+      }
+
+      if (s.id) stepMap[s.id] = obj;
+      else stepMap[String(s.num || idx + 1)] = obj;
+
+      if (s.iconId){
+        var asset = ASSET_CATALOG.find(function(a){ return a.id === s.iconId; });
+        if (asset){
+          fabric.loadSVGFromString(svgWrap(asset.svg), (function(cardObj, assetName){
+            return function(objects, options){
+              var iconGroup = fabric.util.groupSVGElements(objects, options);
+              iconGroup.set({
+                left: cardObj.left + (cardObj.width || 280) - 34,
+                top: cardObj.top + 32,
+                originX: 'center', originY: 'center',
+                scaleX: 0.72, scaleY: 0.72,
+                name: assetName + ' Icon'
+              });
+              idFor(iconGroup);
+              canvas.add(iconGroup);
+              canvas.requestRenderAll();
+            };
+          })(obj, asset.name));
+        }
+      }
+
+      if (!spec.connectors && prevObj && s.connectFromPrev !== false){
+        createFlowConnector(prevObj, obj, s.color || '#0ea5e9');
+      }
+      prevObj = obj;
+    });
+
+    if (spec.connectors && spec.connectors.length){
+      spec.connectors.forEach(function(c){
+        var src = stepMap[c.from];
+        var tgt = stepMap[c.to];
+        if (src && tgt){
+          createFlowConnector(src, tgt, c.color || '#0ea5e9', c.label);
+        }
+      });
+    }
+
+    canvas.renderAll();
+    pushHistory();
+    refreshLayers();
+    toggleEmptyHint();
+    refreshStatus();
+    showToast('Loaded ' + (spec.name || 'Protocol Template'));
+  }
+
   function renderTemplatesTab(){
     var wrap = document.getElementById('panel-templates');
+    var protocolsHtml = [
+      { id: 'assay_pipeline', tmpl: PROTOCOL_TEMPLATES.assay_pipeline, desc: '4-stage assay pipeline: Sample Prep -> Centrifugation -> Assay Binding -> Quantification.' },
+      { id: 'pcr_amplification', tmpl: PROTOCOL_TEMPLATES.pcr_amplification, desc: 'High-fidelity thermal cycling with Denature, Anneal, Extend & Gel band QC decision.' },
+      { id: 'dna_extraction', tmpl: PROTOCOL_TEMPLATES.dna_extraction, desc: '5-step silica column purification: Lysis, Binding, Ethanol Washes, Dry Spin, and Pure Elution.' },
+      { id: 'cell_passage', tmpl: PROTOCOL_TEMPLATES.cell_passage, desc: 'Mammalian subculturing: 80% confluency check, DPBS wash, Trypsinization, and Reseeding.' },
+      { id: 'autoclave_cycle', tmpl: PROTOCOL_TEMPLATES.autoclave_cycle, desc: '121°C @ 15 psi steam cycle, chamber exhaust, and biological indicator spore QC.' },
+      { id: 'spill_response', tmpl: PROTOCOL_TEMPLATES.spill_response, desc: 'Emergency SOP: Evacuate, Don protective PPE, Neutralize & Absorb, and Biohazard disposal.' }
+    ].map(function(p){
+      return '<div class="flyout-card" style="margin-bottom:10px;">'
+        + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">'
+        + '<h4 style="margin:0;">' + p.tmpl.name + '</h4>'
+        + '<span class="badge-soft ' + p.tmpl.badgeColor + '">' + p.tmpl.badge + '</span></div>'
+        + '<p class="hint" style="margin-bottom:8px;">' + p.desc + '</p>'
+        + '<button class="btn btn-sm" data-load-proto="' + p.id + '" style="width:100%; justify-content:center;">Load Protocol</button>'
+        + '</div>';
+    }).join('');
+
+    var blueprintsHtml = [
+      { id: 'tmplAbstract', title: 'Graphical Abstract Blueprint', badge: 'Publication', color: 'btn-accent', desc: '3-panel horizontal layout (Context -> Mechanism -> Outcome) with panels A, B, C.' },
+      { id: 'tmplCascade', title: 'Cellular Signaling Cascade', badge: 'Pathway', color: 'btn-teal', desc: 'Bilayer membrane, receptor dimer, kinase cascade, and transcription factor nuclear entry.' },
+      { id: 'tmplWestern', title: 'Western Blot / SDS-PAGE Gel', badge: 'Gel', color: 'btn', desc: 'Protein molecular weight ladder (kDa) with sample lanes and GAPDH loading controls.' }
+    ].map(function(b){
+      return '<div class="flyout-card" style="margin-bottom:10px;">'
+        + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">'
+        + '<h4 style="margin:0;">' + b.title + '</h4>'
+        + '<span class="badge-soft">' + b.badge + '</span></div>'
+        + '<p class="hint" style="margin-bottom:8px;">' + b.desc + '</p>'
+        + '<button class="btn ' + b.color + '" id="' + b.id + '" style="width:100%; justify-content:center;">Load Blueprint</button>'
+        + '</div>';
+    }).join('');
+
     wrap.innerHTML =
       '<div style="font-size:12px; color:#64748b; margin-bottom:14px; line-height:1.5;">'
-      + 'Load pre-structured scientific blueprints formatted with standard panel labels, flow guides, and placeholders.'
+      + 'Data-driven lab protocol workflows and pre-structured publication blueprints ready for instant customization.'
       + '</div>'
-      + '<div class="flyout-card" style="margin-bottom:10px;">'
-      + '<h4>Graphical Abstract Blueprint</h4>'
-      + '<p class="hint" style="margin-bottom:8px;">3-panel horizontal layout (Context -> Mechanism -> Outcome) with panels A, B, C.</p>'
-      + '<button class="btn btn-accent" id="tmplAbstract" style="width:100%; justify-content:center;">Load Graphical Abstract</button>'
-      + '</div>'
-      + '<div class="flyout-card" style="margin-bottom:10px;">'
-      + '<h4>Cellular Signaling Cascade</h4>'
-      + '<p class="hint" style="margin-bottom:8px;">Bilayer membrane, receptor, kinase cascade, and transcription factor nuclear entry.</p>'
-      + '<button class="btn btn-teal" id="tmplCascade" style="width:100%; justify-content:center;">Load Signaling Blueprint</button>'
-      + '</div>'
-      + '<div class="flyout-card" style="margin-bottom:10px;">'
-      + '<h4>Lab Protocol / Workflow Pipeline</h4>'
-      + '<p class="hint" style="margin-bottom:8px;">4-stage pipeline: Sample Prep -> Centrifugation -> Assay -> Data Analysis.</p>'
-      + '<button class="btn" id="tmplProtocol" style="width:100%; justify-content:center;">Load Workflow Blueprint</button>'
-      + '</div>'
-      + '<div class="flyout-card">'
-      + '<h4>Western Blot / SDS-PAGE Gel</h4>'
-      + '<p class="hint" style="margin-bottom:8px;">Protein molecular weight ladder (kDa) with sample lanes and loading controls.</p>'
-      + '<button class="btn" id="tmplWestern" style="width:100%; justify-content:center;">Load Gel Blueprint</button>'
-      + '</div>';
+      + '<div style="font-size:11px; font-weight:700; text-transform:uppercase; color:#0ea5e9; margin-bottom:8px; letter-spacing:0.5px;">Lab Procedures & Workflows</div>'
+      + protocolsHtml
+      + '<div style="font-size:11px; font-weight:700; text-transform:uppercase; color:#0ea5e9; margin:16px 0 8px; letter-spacing:0.5px;">Publication Blueprints</div>'
+      + blueprintsHtml;
 
-    document.getElementById('tmplAbstract').addEventListener('click', loadGraphicalAbstractTemplate);
-    document.getElementById('tmplCascade').addEventListener('click', loadSignalingCascadeTemplate);
-    document.getElementById('tmplProtocol').addEventListener('click', loadProtocolWorkflowTemplate);
-    document.getElementById('tmplWestern').addEventListener('click', loadWesternBlotTemplate);
+    wrap.querySelectorAll('[data-load-proto]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var pid = btn.dataset.loadProto;
+        if (PROTOCOL_TEMPLATES[pid]){
+          buildFlowProtocol(PROTOCOL_TEMPLATES[pid]);
+        }
+      });
+    });
+
+    var bAbs = document.getElementById('tmplAbstract');
+    if (bAbs) bAbs.addEventListener('click', loadGraphicalAbstractTemplate);
+    var bCas = document.getElementById('tmplCascade');
+    if (bCas) bCas.addEventListener('click', loadSignalingCascadeTemplate);
+    var bWst = document.getElementById('tmplWestern');
+    if (bWst) bWst.addEventListener('click', loadWesternBlotTemplate);
   }
 
   function loadGraphicalAbstractTemplate(){
@@ -2804,50 +3932,7 @@
   }
 
   function loadProtocolWorkflowTemplate(){
-    setCanvasSize(1600, 650);
-    canvas.clear();
-    canvas.backgroundColor = '#ffffff';
-
-    var title = new fabric.IText('Experimental Protocol & Assay Pipeline', {
-      left: 60, top: 40, fontSize: 24, fontWeight: 700, fontFamily: 'IBM Plex Sans', fill: '#0f172a'
-    });
-    canvas.add(title);
-
-    var stages = [
-      { num: '1', title: 'Sample Prep', desc: 'Cell harvesting & lysis buffer treatment' },
-      { num: '2', title: 'Fractionation', desc: 'High-speed 14,000 rpm centrifugation' },
-      { num: '3', title: 'Assay Binding', desc: 'ELISA / Western incubation with antibodies' },
-      { num: '4', title: 'Quantification', desc: 'Fluorescent signal readout & statistics' }
-    ];
-
-    var cardW = 320, cardH = 380, startX = 60, gap = 60;
-    stages.forEach(function(s, idx){
-      var x = startX + idx * (cardW + gap);
-      var card = new fabric.Rect({
-        left: x, top: 120, width: cardW, height: cardH,
-        fill: '#fafbfc', stroke: '#e2e8f0', strokeWidth: 1.5, rx: 8, ry: 8, name: 'Card ' + s.num
-      });
-      var badge = new fabric.Circle({ left: x + 24, top: 146, radius: 14, fill: '#0ea5e9', originX: 'center', originY: 'center' });
-      var bText = new fabric.Text(s.num, { left: x + 24, top: 146, fontSize: 13, fontWeight: 700, fill: '#fff', originX: 'center', originY: 'center' });
-      var hText = new fabric.IText(s.title, { left: x + 50, top: 138, fontSize: 15, fontWeight: 600, fill: '#0f172a' });
-      var dText = new fabric.IText(s.desc, { left: x + 24, top: 185, fontSize: 12, fill: '#64748b', width: 270 });
-
-      canvas.add(card, badge, bText, hText, dText);
-
-      // Connector between cards
-      if (idx < stages.length - 1){
-        var arrX = x + cardW + 8;
-        var arr = new fabric.Group([
-          new fabric.Line([arrX, 300, arrX + 44, 300], { stroke: '#0ea5e9', strokeWidth: 3 }),
-          new fabric.Triangle({ left: arrX + 44, top: 300, width: 14, height: 16, fill: '#0ea5e9', angle: 90, originX: 'center', originY: 'center' })
-        ], { name: 'Step Arrow' });
-        canvas.add(arr);
-      }
-    });
-
-    canvas.renderAll();
-    pushHistory();
-    showToast('Loaded Protocol Pipeline blueprint');
+    buildFlowProtocol(PROTOCOL_TEMPLATES.assay_pipeline);
   }
 
   function loadWesternBlotTemplate(){
@@ -2940,51 +4025,125 @@
   });
 
   /* ======================================================================
-     13. SCIENTIFIC ASSET LIBRARY (BIOICONS & LABWARE)
+     13. SCIENTIFIC ASSET LIBRARY (BIOICONS, EQUIPMENT, SAFETY & FLOWCHART)
+     
+     --- INTERNAL STYLE GUIDE FOR VECTOR ASSETS ---
+     • ViewBox: Exactly '0 0 64 64'.
+     • Stroke: 2.0px to 2.5px with stroke-linecap="round" and stroke-linejoin="round".
+     • Internal Details: 1.5px to 1.8px stroke width.
+     • Fill: Subtle 8% to 15% opacity fills (e.g. rgba(14,165,233,0.12)).
+     • Color Palette:
+       - Sky Blue: #0ea5e9 / #0284c7 (liquids, buffers, primary steps)
+       - Emerald: #059669 / #10b981 (sterile goods, wash steps, plant biology, pass)
+       - Teal: #0d9488 (enzymes, biological complexes, membranes)
+       - Rose: #e11d48 / #be123c (biohazard, danger, blood, acid, failure branch)
+       - Amber: #f59e0b / #d97706 (thermal incubation, warning, decision diamonds)
+       - Indigo: #6366f1 / #7c3aed (antibodies, molecular tags, dry spins)
+       - Slate Dark: #0f172a (equipment bodies, instrument bezels, high-contrast marks)
+       - Slate Muted: #64748b / #94a3b8 (grids, graduations, secondary lines)
   ====================================================================== */
   var ASSET_CATALOG = [
-    // Cell Biology
-    { id:'cell', cat:'cells', name:'Animal Cell', svg:'<circle cx="32" cy="32" r="26" fill="rgba(14,165,233,0.08)" stroke="#0ea5e9" stroke-width="2.5"/><ellipse cx="30" cy="28" rx="9" ry="7" fill="rgba(14,165,233,0.2)" stroke="#0ea5e9" stroke-width="2"/><circle cx="45" cy="22" r="3" fill="#0d9488"/><circle cx="18" cy="42" r="2.5" fill="#f59e0b"/><circle cx="42" cy="46" r="2.5" fill="#e11d48"/>' },
-    { id:'plant_cell', cat:'cells', name:'Plant Cell Wall', svg:'<rect x="6" y="8" width="52" height="48" rx="6" fill="rgba(5,150,105,0.08)" stroke="#059669" stroke-width="2.5"/><rect x="11" y="13" width="42" height="38" rx="4" fill="none" stroke="#059669" stroke-width="1.6"/><ellipse cx="32" cy="32" rx="14" ry="10" fill="rgba(14,165,233,0.15)" stroke="#0ea5e9" stroke-width="1.6"/><circle cx="20" cy="22" r="3" fill="#059669"/>' },
-    { id:'nucleus', cat:'cells', name:'Nucleus with Pores', svg:'<circle cx="32" cy="32" r="24" fill="rgba(14,165,233,0.12)" stroke="#0ea5e9" stroke-width="2.5" stroke-dasharray="8,3"/><circle cx="32" cy="32" r="10" fill="rgba(14,165,233,0.3)" stroke="#0ea5e9" stroke-width="1.8"/><path d="M16 26c4 3 8-3 12 0s8-3 12 0" fill="none" stroke="#0ea5e9" stroke-width="1.4"/>' },
-    { id:'mitochondria', cat:'cells', name:'Mitochondrion', svg:'<path d="M12 32c0-12 11-19 20-19s20 7 20 19-11 19-20 19-20-7-20-19z" fill="rgba(245,158,11,0.1)" stroke="#d97706" stroke-width="2.5"/><path d="M20 22c4 4 4 8 0 12M28 17c4 5 4 10 0 15M36 15c4 6 4 12 0 18M44 20c4 5 4 10 0 14" fill="none" stroke="#d97706" stroke-width="1.8"/>' },
-    { id:'golgi', cat:'cells', name:'Golgi Apparatus', svg:'<path d="M14 18c12 5 24 5 36 0" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round"/><path d="M12 28c14 6 26 6 40 0" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round"/><path d="M16 38c10 5 22 5 32 0" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round"/><circle cx="48" cy="14" r="2.5" fill="#0d9488"/><circle cx="12" cy="44" r="2.5" fill="#0d9488"/>' },
-    { id:'er', cat:'cells', name:'Endoplasmic Reticulum', svg:'<path d="M12 18c10-6 20 6 30 0s10 6 10 12-10 6-10 12 10 6-10 12-20-6-30 0" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/><circle cx="16" cy="18" r="1.5" fill="#6366f1"/><circle cx="28" cy="24" r="1.5" fill="#6366f1"/><circle cx="38" cy="30" r="1.5" fill="#6366f1"/>' },
-    { id:'lysosome', cat:'cells', name:'Lysosome', svg:'<circle cx="32" cy="32" r="20" fill="rgba(225,29,72,0.1)" stroke="#e11d48" stroke-width="2.5"/><circle cx="26" cy="28" r="2.5" fill="#e11d48"/><circle cx="38" cy="36" r="3" fill="#e11d48"/><circle cx="34" cy="24" r="2" fill="#e11d48"/>' },
-    { id:'chloroplast', cat:'cells', name:'Chloroplast', svg:'<ellipse cx="32" cy="32" rx="24" ry="16" fill="rgba(5,150,105,0.1)" stroke="#059669" stroke-width="2.5"/><line x1="20" y1="26" x2="20" y2="38" stroke="#059669" stroke-width="3"/><line x1="32" y1="22" x2="32" y2="42" stroke="#059669" stroke-width="3"/><line x1="44" y1="26" x2="44" y2="38" stroke="#059669" stroke-width="3"/><line x1="16" y1="32" x2="48" y2="32" stroke="#059669" stroke-width="1.5"/>' },
+    // --- Equipment (cat: 'equipment') ---
+    { id:'centrifuge', cat:'equipment', name:'Benchtop Centrifuge', tags:['centrifuge','spin down','pellet','rpm','supernatant','fractionation','benchtop','rotor'], svg:'<rect x="8" y="16" width="48" height="38" rx="6" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5"/><ellipse cx="32" cy="28" rx="18" ry="8" fill="rgba(14,165,233,0.12)" stroke="#0284c7" stroke-width="2"/><circle cx="32" cy="28" r="4" fill="#0f172a"/><ellipse cx="23" cy="26" rx="2" ry="3" fill="#e11d48"/><ellipse cx="41" cy="26" rx="2" ry="3" fill="#e11d48"/><rect x="14" y="42" width="16" height="8" rx="2" fill="#0f172a"/><line x1="17" y1="46" x2="27" y2="46" stroke="#38bdf8" stroke-width="2"/><circle cx="42" cy="46" r="3.5" fill="#64748b" stroke="#0f172a" stroke-width="1.5"/>' },
+    { id:'autoclave', cat:'equipment', name:'Autoclave Sterilizer', tags:['autoclave','sterilization','steam','pressure','decontamination','sterile','biohazard','121c'], svg:'<rect x="10" y="10" width="44" height="46" rx="6" fill="#f1f5f9" stroke="#0f172a" stroke-width="2.5"/><circle cx="32" cy="32" r="16" fill="rgba(13,148,136,0.1)" stroke="#0d9488" stroke-width="2.2"/><circle cx="32" cy="32" r="6" fill="#0d9488"/><line x1="32" y1="20" x2="32" y2="44" stroke="#0d9488" stroke-width="2"/><line x1="20" y1="32" x2="44" y2="32" stroke="#0d9488" stroke-width="2"/><circle cx="44" cy="18" r="4" fill="#fff" stroke="#e11d48" stroke-width="1.5"/><line x1="44" y1="18" x2="46" y2="16" stroke="#e11d48" stroke-width="1.2"/><path d="M26 6c1 2 3 2 4 0s3-2 4 0" fill="none" stroke="#64748b" stroke-width="1.8" stroke-linecap="round"/>' },
+    { id:'incubator', cat:'equipment', name:'CO2 Incubator', tags:['incubator','confluent','confluency','cell culture','co2','temperature','37c','growth','mammalian','humidity'], svg:'<rect x="12" y="8" width="40" height="50" rx="4" fill="#fafbfc" stroke="#0f172a" stroke-width="2.5"/><rect x="18" y="14" width="28" height="38" rx="2" fill="rgba(245,158,11,0.08)" stroke="#cbd5e1" stroke-width="1.5"/><line x1="18" y1="24" x2="46" y2="24" stroke="#d97706" stroke-width="2" stroke-dasharray="2,2"/><line x1="18" y1="34" x2="46" y2="34" stroke="#d97706" stroke-width="2" stroke-dasharray="2,2"/><line x1="18" y1="44" x2="46" y2="44" stroke="#d97706" stroke-width="2" stroke-dasharray="2,2"/><rect x="18" y="10" width="16" height="3" rx="1" fill="#0284c7"/><circle cx="44" cy="33" r="1.5" fill="#0f172a"/>' },
+    { id:'water_bath', cat:'equipment', name:'Heated Water Bath', tags:['water bath','incubation','heat','thaw','constant temperature','heating','thermostatic'], svg:'<rect x="10" y="24" width="44" height="32" rx="4" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5"/><path d="M14 34c4-2 8 2 12 0s8-2 12 0 8 2 12 0v16H14z" fill="rgba(14,165,233,0.2)" stroke="#0ea5e9" stroke-width="1.8"/><polygon points="8,24 20,12 44,12 56,24" fill="#e2e8f0" stroke="#0f172a" stroke-width="2"/><rect x="34" y="44" width="14" height="7" rx="1" fill="#0f172a"/><line x1="37" y1="47" x2="45" y2="47" stroke="#e11d48" stroke-width="1.5"/>' },
+    { id:'vortex', cat:'equipment', name:'Vortex Mixer', tags:['vortex mixer','mixing','resuspend','pellet','agitation','homogenize','speed dial'], svg:'<path d="M14 54l4-28h28l4 28z" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5"/><rect x="25" y="16" width="14" height="10" rx="3" fill="#0f172a"/><path d="M21 16c0-4 11-4 11 0" stroke="#0f172a" stroke-width="2.5" fill="none"/><circle cx="32" cy="42" r="5" fill="#e2e8f0" stroke="#0284c7" stroke-width="2"/><line x1="32" y1="42" x2="35" y2="39" stroke="#0284c7" stroke-width="2"/><path d="M17 12c-3 3-3 8 0 11M47 12c3 3 3 8 0 11" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>' },
+    { id:'hotplate_stirrer', cat:'equipment', name:'Hot Plate & Stirrer', tags:['hot plate','stirrer','magnetic stir bar','heating','solution prep','dissolve','temperature'], svg:'<rect x="10" y="22" width="44" height="34" rx="4" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5"/><rect x="8" y="16" width="48" height="6" rx="2" fill="#e2e8f0" stroke="#0f172a" stroke-width="2"/><ellipse cx="32" cy="19" rx="7" ry="2" fill="#0284c7"/><path d="M24 10c4-3 12-3 16 0" fill="none" stroke="#e11d48" stroke-width="2" stroke-dasharray="3,2"/><circle cx="22" cy="40" r="5" fill="#fff" stroke="#e11d48" stroke-width="2"/><circle cx="42" cy="40" r="5" fill="#fff" stroke="#0284c7" stroke-width="2"/>' },
+    { id:'balance', cat:'equipment', name:'Analytical Balance', tags:['analytical balance','scale','weighing','mass','precision','reagent','mg','grams'], svg:'<rect x="12" y="12" width="40" height="44" rx="3" fill="rgba(14,165,233,0.06)" stroke="#0f172a" stroke-width="2.5"/><line x1="20" y1="36" x2="44" y2="36" stroke="#0f172a" stroke-width="2.5"/><rect x="29" y="36" width="6" height="6" fill="#64748b"/><ellipse cx="32" cy="34" rx="10" ry="2" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.5"/><rect x="18" y="44" width="28" height="8" rx="2" fill="#0f172a"/><text x="32" y="50" font-size="6" font-family="monospace" fill="#38bdf8" text-anchor="middle" font-weight="bold">0.000g</text>' },
+    { id:'fume_hood', cat:'equipment', name:'Chemical Fume Hood', tags:['fume hood','ventilation','chemical exhaust','volatile','fumes','safety','sash','airflow'], svg:'<rect x="10" y="8" width="44" height="48" rx="2" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5"/><rect x="16" y="14" width="32" height="18" fill="rgba(14,165,233,0.1)" stroke="#0284c7" stroke-width="1.8"/><line x1="10" y1="32" x2="54" y2="32" stroke="#0f172a" stroke-width="2.5"/><path d="M24 44v-6M32 46v-8M40 44v-6" stroke="#0d9488" stroke-width="2" stroke-linecap="round"/><path d="M22 40l2-3 2 3M30 40l2-3 2 3M38 40l2-3 2 3" fill="none" stroke="#0d9488" stroke-width="2"/><rect x="16" y="50" width="32" height="4" fill="#64748b"/>' },
+    { id:'biosafety_cabinet', cat:'equipment', name:'Biosafety Cabinet (BSC)', tags:['biosafety cabinet','bsc','laminar flow','hepa','sterile hood','cell culture','aseptic'], svg:'<polygon points="12,8 52,8 48,56 16,56" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5"/><rect x="18" y="12" width="28" height="6" fill="#0d9488" opacity="0.2"/><line x1="18" y1="18" x2="46" y2="18" stroke="#0d9488" stroke-width="2"/><path d="M24 22v14M32 22v14M40 22v14" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round"/><path d="M22 32l2 4 2-4M30 32l2 4 2-4M38 32l2 4 2-4" fill="none" stroke="#0ea5e9" stroke-width="1.8"/><rect x="20" y="44" width="24" height="6" rx="1" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.5"/>' },
+    { id:'freezer_ult', cat:'equipment', name:'Ultra-Low Freezer (-80°C)', tags:['ultra low freezer','-80c','-20c','cryo','cold storage','biobank','aliquot preservation'], svg:'<rect x="14" y="6" width="36" height="52" rx="4" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5"/><line x1="14" y1="28" x2="50" y2="28" stroke="#0f172a" stroke-width="2"/><rect x="42" y="14" width="3" height="10" rx="1.5" fill="#0284c7"/><rect x="42" y="34" width="3" height="10" rx="1.5" fill="#0284c7"/><rect x="20" y="10" width="18" height="7" rx="1.5" fill="#0f172a"/><text x="29" y="15.5" font-size="5" font-family="monospace" fill="#38bdf8" text-anchor="middle" font-weight="bold">-80°C</text><path d="M26 40l6 6M32 40l-6 6M29 39v8M25 43h8" stroke="#0ea5e9" stroke-width="1.5" stroke-linecap="round"/>' },
+    { id:'thermocycler', cat:'equipment', name:'PCR Thermocycler', tags:['pcr thermocycler','polymerase chain reaction','amplification','denaturation','annealing','dna'], svg:'<path d="M12 24h40l-4 32H16z" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5"/><rect x="18" y="12" width="28" height="12" rx="3" fill="#e2e8f0" stroke="#0f172a" stroke-width="2"/><line x1="24" y1="8" x2="40" y2="8" stroke="#0284c7" stroke-width="3" stroke-linecap="round"/><line x1="32" y1="8" x2="32" y2="12" stroke="#0284c7" stroke-width="2.5"/><rect x="20" y="30" width="24" height="16" rx="2" fill="#0f172a"/><path d="M22 42h4l3-8h5l3 5h4" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round"/>' },
+    { id:'spectrophotometer', cat:'equipment', name:'Spectrophotometer', tags:['spectrophotometer','nanodrop','absorbance','optical density','od600','a260','cuvette'], svg:'<rect x="8" y="20" width="48" height="36" rx="5" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5"/><rect x="14" y="26" width="12" height="18" rx="2" fill="#0f172a"/><rect x="17" y="30" width="6" height="10" fill="rgba(14,165,233,0.3)" stroke="#38bdf8" stroke-width="1.2"/><line x1="23" y1="35" x2="35" y2="35" stroke="#f59e0b" stroke-width="2" stroke-dasharray="2,2"/><rect x="34" y="28" width="16" height="12" rx="2" fill="#0f172a"/><text x="42" y="36" font-size="5" font-family="monospace" fill="#10b981" text-anchor="middle" font-weight="bold">OD600</text>' },
+    { id:'gel_rig', cat:'equipment', name:'Electrophoresis Rig', tags:['gel electrophoresis','agarose','dna running','band separation','tank','buffer','sds-page'], svg:'<rect x="8" y="16" width="48" height="36" rx="4" fill="rgba(14,165,233,0.08)" stroke="#0f172a" stroke-width="2.5"/><rect x="16" y="22" width="32" height="24" rx="2" fill="#ffffff" stroke="#64748b" stroke-width="1.8"/><line x1="20" y1="26" x2="22" y2="26" stroke="#0f172a" stroke-width="2.5"/><line x1="26" y1="26" x2="28" y2="26" stroke="#0f172a" stroke-width="2.5"/><line x1="32" y1="26" x2="34" y2="26" stroke="#0f172a" stroke-width="2.5"/><line x1="38" y1="26" x2="40" y2="26" stroke="#0f172a" stroke-width="2.5"/><line x1="20" y1="32" x2="22" y2="32" stroke="#0284c7" stroke-width="2"/><line x1="26" y1="36" x2="28" y2="36" stroke="#0284c7" stroke-width="2"/><line x1="32" y1="40" x2="34" y2="40" stroke="#0284c7" stroke-width="2"/><circle cx="12" cy="24" r="3" fill="#0f172a"/><circle cx="52" cy="24" r="3" fill="#e11d48"/>' },
+    { id:'ph_meter', cat:'equipment', name:'Benchtop pH Meter', tags:['ph meter','electrode','buffer','acidity','calibration','probe','titration','alkalinity'], svg:'<rect x="8" y="28" width="26" height="24" rx="3" fill="#f8fafc" stroke="#0f172a" stroke-width="2.2"/><rect x="12" y="32" width="18" height="10" rx="1.5" fill="#0f172a"/><text x="21" y="39" font-size="6" font-family="monospace" fill="#38bdf8" text-anchor="middle" font-weight="bold">7.00</text><path d="M26 30l12-14 8 4" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round"/><rect x="44" y="20" width="4" height="22" rx="2" fill="#0ea5e9" stroke="#0f172a" stroke-width="1.8"/><path d="M40 34h12v18a2 2 0 0 1-2 2H42a2 2 0 0 1-2-2z" fill="rgba(13,148,136,0.15)" stroke="#0d9488" stroke-width="1.8"/>' },
+    { id:'bunsen_burner', cat:'equipment', name:'Bunsen Burner', tags:['bunsen burner','flame','gas','sterilization','flaming','microbiology','heat'], svg:'<rect x="16" y="52" width="32" height="6" rx="2" fill="#64748b" stroke="#0f172a" stroke-width="2"/><rect x="28" y="28" width="8" height="24" fill="#94a3b8" stroke="#0f172a" stroke-width="2"/><circle cx="32" cy="46" r="2" fill="#0f172a"/><path d="M32 6c-6 8-8 14-8 18 0 5 3.6 8 8 8s8-3 8-8c0-4-2-10-8-18z" fill="rgba(14,165,233,0.3)" stroke="#0284c7" stroke-width="2"/><path d="M32 14c-3 4-4 8-4 10 0 2.5 1.8 4 4 4s4-1.5 4-4c0-2-1-6-4-10z" fill="#38bdf8"/>' },
+    { id:'tube_rack', cat:'equipment', name:'Labware Tube Rack', tags:['tube rack','holder','rack','aliquot','samples','tubes','benchtop','labware'], svg:'<rect x="8" y="28" width="48" height="26" rx="3" fill="#f1f5f9" stroke="#0f172a" stroke-width="2.5"/><line x1="8" y1="40" x2="56" y2="40" stroke="#cbd5e1" stroke-width="2"/><path d="M14 18h6v14l-3 4-3-4z" fill="rgba(14,165,233,0.2)" stroke="#0284c7" stroke-width="1.8"/><path d="M25 18h6v14l-3 4-3-4z" fill="rgba(225,29,72,0.2)" stroke="#e11d48" stroke-width="1.8"/><path d="M36 18h6v14l-3 4-3-4z" fill="rgba(245,158,11,0.2)" stroke="#d97706" stroke-width="1.8"/><path d="M47 18h6v14l-3 4-3-4z" fill="rgba(13,148,136,0.2)" stroke="#0d9488" stroke-width="1.8"/>' },
 
-    // Genetics & Molecular
-    { id:'dna_icon', cat:'molecular', name:'DNA Helix Segment', svg:'<path d="M20 8c0 12 24 12 24 24s-24 12-24 24" fill="none" stroke="#0ea5e9" stroke-width="2.5"/><path d="M44 8c0 12-24 12-24 24s24 12 24 24" fill="none" stroke="#f97316" stroke-width="2.5"/><path d="M21 16h22M20 24h24M21 32h22M20 40h24M21 48h22" stroke="#64748b" stroke-width="1.8"/>' },
-    { id:'trna', cat:'molecular', name:'tRNA Cloverleaf', svg:'<path d="M32 8v16M24 24c-8-4-12 4-4 8 4 2 8-2 12-8M40 24c8-4 12 4 4 8-4 2-8-2-12-8M32 24v20c-6 4-6 12 0 12s6-8 0-12" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round"/>' },
-    { id:'ribosome', cat:'molecular', name:'Ribosome Complex', svg:'<ellipse cx="32" cy="22" rx="18" ry="11" fill="rgba(13,148,136,0.2)" stroke="#0d9488" stroke-width="2.5"/><ellipse cx="32" cy="38" rx="24" ry="14" fill="rgba(13,148,136,0.3)" stroke="#0d9488" stroke-width="2.5"/><line x1="12" y1="28" x2="52" y2="28" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3,3"/>' },
-    { id:'crispr', cat:'molecular', name:'CRISPR-Cas9 Complex', svg:'<path d="M16 20c16-10 32-4 32 12s-16 22-32 12z" fill="rgba(2,132,199,0.15)" stroke="#0284c7" stroke-width="2.5"/><path d="M12 28h40" stroke="#f97316" stroke-width="2.5"/><path d="M24 28c4 8 16 8 20 0" fill="none" stroke="#e11d48" stroke-width="2"/>' },
-    { id:'plasmid', cat:'molecular', name:'Circular Plasmid', svg:'<circle cx="32" cy="32" r="22" fill="none" stroke="#64748b" stroke-width="3"/><path d="M32 10a22 22 0 0 1 22 22" fill="none" stroke="#0ea5e9" stroke-width="5"/><path d="M20 50a22 22 0 0 1-10-18" fill="none" stroke="#e11d48" stroke-width="5"/><circle cx="32" cy="10" r="2.5" fill="#0f172a"/>' },
-    { id:'virus', cat:'molecular', name:'Bacteriophage', svg:'<polygon points="32,8 46,18 46,30 32,40 18,30 18,18" fill="none" stroke="#0f172a" stroke-width="2.2"/><line x1="32" y1="40" x2="32" y2="52" stroke="#0f172a" stroke-width="2.5"/><path d="M32 52l-12 8M32 52l12 8M32 46l-10 6M32 46l10 6" stroke="#0f172a" stroke-width="1.8"/>' },
+    // --- PPE & Safety (cat: 'safety') ---
+    { id:'gloves', cat:'safety', name:'Nitrile Gloves', tags:['nitrile gloves','ppe','personal protective equipment','latex','hand protection','barrier'], svg:'<path d="M24 16v16l-3-4c-2-2-4-1-4 1s2 4 4 6l6 14h10l3-18v-8c0-2-2-3-4-1l-1 5v-9c0-2-2-3-4-1l-1 6v-9c0-2-2-2-3 0z" fill="rgba(14,165,233,0.18)" stroke="#0284c7" stroke-width="2.2" stroke-linejoin="round"/><path d="M38 24v12l3-3c2-1 3 0 3 2s-1 3-3 5l-4 12h8l2-14v-7c0-2 2-2 3 0v6" fill="none" stroke="#0284c7" stroke-width="1.8" stroke-linejoin="round"/>' },
+    { id:'goggles', cat:'safety', name:'Safety Goggles', tags:['safety goggles','eye protection','glasses','splash shield','ppe','chemical splash'], svg:'<path d="M10 26c0-6 4-10 11-10 8 0 10 7 11 8 1-1 3-8 11-8 7 0 11 4 11 10 0 10-6 16-13 16-6 0-9-4-9-4s-3 4-9 4c-7 0-13-6-13-16z" fill="rgba(13,148,136,0.15)" stroke="#0d9488" stroke-width="2.5"/><ellipse cx="21" cy="27" rx="7" ry="6" fill="#fff" opacity="0.6"/><ellipse cx="43" cy="27" rx="7" ry="6" fill="#fff" opacity="0.6"/><path d="M10 26H4M54 26h6" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/>' },
+    { id:'lab_coat', cat:'safety', name:'Lab Coat', tags:['lab coat','ppe','protective clothing','barrier','apparel','safety'], svg:'<path d="M16 10l16 8 16-8 8 20-8 3-4-11v32H20V22l-4 11-8-3z" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5" stroke-linejoin="round"/><path d="M24 14l8 14 8-14" fill="none" stroke="#0284c7" stroke-width="2"/><line x1="32" y1="28" x2="32" y2="54" stroke="#0f172a" stroke-width="2"/><circle cx="32" cy="34" r="1.5" fill="#0f172a"/><circle cx="32" cy="42" r="1.5" fill="#0f172a"/><circle cx="32" cy="50" r="1.5" fill="#0f172a"/><rect x="23" y="32" width="5" height="7" fill="none" stroke="#64748b" stroke-width="1.5"/>' },
+    { id:'biohazard', cat:'safety', name:'Biohazard Symbol', tags:['biohazard','biological hazard','infectious','bsl-2','bsl-3','warning','pathogen','agent'], svg:'<circle cx="32" cy="32" r="7" fill="none" stroke="#d97706" stroke-width="2.5"/><circle cx="32" cy="32" r="3" fill="#d97706"/><path d="M32 20c-5 0-9-4-9-9 7-2 13 2 15 7M32 20c5 0 9-4 9-9-7-2-13 2-15 7" fill="none" stroke="#d97706" stroke-width="2.5"/><path d="M22 38c2 4 1 10-3 13-4-6-2-13 3-15M22 38c-3-4-9-3-13 1 2 7 8 9 13 5" fill="none" stroke="#d97706" stroke-width="2.5"/><path d="M42 38c-2 4-1 10 3 13 4-6 2-13-3-15M42 38c3-4 9-3 13 1-2 7-8 9-13 5" fill="none" stroke="#d97706" stroke-width="2.5"/>' },
+    { id:'fire_extinguisher', cat:'safety', name:'Fire Extinguisher', tags:['fire extinguisher','safety','emergency','fire suppression','flammable','co2'], svg:'<rect x="22" y="22" width="20" height="34" rx="6" fill="#e11d48" stroke="#be123c" stroke-width="2.2"/><rect x="28" y="16" width="8" height="6" fill="#64748b" stroke="#0f172a" stroke-width="1.8"/><path d="M26 14h12M32 14v-4" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round"/><path d="M36 18c6 0 10 4 10 10v12l2 4" fill="none" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round"/><rect x="26" y="32" width="12" height="12" rx="2" fill="#ffffff"/><path d="M32 34v8M28 38h8" stroke="#e11d48" stroke-width="1.5"/>' },
+    { id:'eyewash', cat:'safety', name:'Eyewash Station', tags:['eyewash station','emergency shower','rinse','chemical splash','safety','first aid'], svg:'<ellipse cx="32" cy="40" rx="20" ry="8" fill="rgba(13,148,136,0.12)" stroke="#0d9488" stroke-width="2.5"/><path d="M24 38v-8M40 38v-8" stroke="#0d9488" stroke-width="2.5" stroke-linecap="round"/><path d="M22 26c2-4 4-4 4 0M38 26c2-4 4-4 4 0" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round"/><line x1="32" y1="48" x2="32" y2="58" stroke="#64748b" stroke-width="3"/><rect x="48" y="30" width="8" height="12" rx="1" fill="#059669"/><text x="52" y="38" font-size="6" fill="#fff" font-weight="bold" text-anchor="middle">PUSH</text>' },
+    { id:'sharps_container', cat:'safety', name:'Sharps Container', tags:['sharps container','needle disposal','scalpel','biohazard waste','contaminated','yellow bin'], svg:'<polygon points="16,22 48,22 44,56 20,56" fill="rgba(245,158,11,0.15)" stroke="#d97706" stroke-width="2.5"/><rect x="12" y="14" width="40" height="8" rx="2" fill="#e11d48" stroke="#be123c" stroke-width="2"/><rect x="24" y="17" width="16" height="2" rx="1" fill="#ffffff"/><circle cx="32" cy="38" r="8" fill="#e11d48"/><text x="32" y="43" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">☣</text>' },
+    { id:'ghs_corrosive', cat:'safety', name:'GHS: Corrosive', tags:['ghs corrosive','hazard','acid','base','caustic','burn','pictogram','skin corrosion'], svg:'<polygon points="32,6 58,32 32,58 6,32" fill="#fff" stroke="#e11d48" stroke-width="2.5"/><path d="M18 22l6 6M46 22l-6 6" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="32" r="1.5" fill="#e11d48"/><circle cx="36" cy="32" r="1.5" fill="#e11d48"/><rect x="20" y="38" width="10" height="4" rx="1" fill="#0f172a"/><path d="M34 40c4-3 8-1 10 2" stroke="#0f172a" stroke-width="2" fill="none"/>' },
+    { id:'ghs_flammable', cat:'safety', name:'GHS: Flammable', tags:['ghs flammable','fire','combustible','solvent','alcohol','hazard','pictogram','ignition'], svg:'<polygon points="32,6 58,32 32,58 6,32" fill="#fff" stroke="#e11d48" stroke-width="2.5"/><path d="M32 16c-3 6-7 9-7 14 0 6 4 10 7 10s7-4 7-10c0-3-1-6-3-8 0 4-2 6-4 6s-2-3 0-6z" fill="#f59e0b" stroke="#e11d48" stroke-width="1.8"/><line x1="18" y1="44" x2="46" y2="44" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>' },
+    { id:'ghs_toxic', cat:'safety', name:'GHS: Toxic / Poison', tags:['ghs toxic','skull and crossbones','poison','acute toxicity','lethal','pictogram','danger'], svg:'<polygon points="32,6 58,32 32,58 6,32" fill="#fff" stroke="#e11d48" stroke-width="2.5"/><circle cx="32" cy="27" r="8" fill="#0f172a"/><rect x="29" y="34" width="6" height="4" fill="#0f172a"/><circle cx="29" cy="26" r="1.8" fill="#ffffff"/><circle cx="35" cy="26" r="1.8" fill="#ffffff"/><line x1="20" y1="44" x2="44" y2="38" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="38" x2="44" y2="44" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>' },
+    { id:'ghs_irritant', cat:'safety', name:'GHS: Harmful / Irritant', tags:['ghs irritant','harmful','skin sensitizer','warning','hazard','pictogram','exclamation mark'], svg:'<polygon points="32,6 58,32 32,58 6,32" fill="#fff" stroke="#e11d48" stroke-width="2.5"/><line x1="32" y1="20" x2="32" y2="36" stroke="#0f172a" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="43" r="3" fill="#0f172a"/>' },
 
-    // Labware
-    { id:'flask_erlenmeyer', cat:'lab', name:'Erlenmeyer Flask', svg:'<path d="M26 8h12M28 8v12l-14 28a4 4 0 0 0 3.6 6h28.8a4 4 0 0 0 3.6-6L36 20V8" fill="rgba(14,165,233,0.1)" stroke="#0284c7" stroke-width="2.5" stroke-linejoin="round"/><path d="M19 42h26" stroke="#0284c7" stroke-width="2"/><line x1="24" y1="36" x2="28" y2="36" stroke="#64748b" stroke-width="1.5"/><line x1="22" y1="42" x2="28" y2="42" stroke="#64748b" stroke-width="1.5"/>' },
-    { id:'beaker', cat:'lab', name:'Beaker with Fluid', svg:'<path d="M16 10h34M18 10v40a4 4 0 0 0 4 4h22a4 4 0 0 0 4-4V10" fill="rgba(13,148,136,0.1)" stroke="#0d9488" stroke-width="2.5"/><path d="M18 32h30" stroke="#0d9488" stroke-width="2"/><line x1="20" y1="24" x2="26" y2="24" stroke="#64748b" stroke-width="1.5"/><line x1="20" y1="32" x2="28" y2="32" stroke="#64748b" stroke-width="1.5"/><line x1="20" y1="40" x2="26" y2="40" stroke="#64748b" stroke-width="1.5"/>' },
-    { id:'test_tube', cat:'lab', name:'Test Tube & Meniscus', svg:'<path d="M24 8h16M28 8v38a4 4 0 0 0 8 0V8" fill="rgba(225,29,72,0.1)" stroke="#e11d48" stroke-width="2.5"/><path d="M28 32c4-2 4 2 8 0" stroke="#e11d48" stroke-width="2"/>' },
-    { id:'micropipette', cat:'lab', name:'Micropipette', svg:'<rect x="29" y="6" width="6" height="24" rx="2" fill="#0f172a"/><rect x="27" y="12" width="10" height="12" rx="1" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.5"/><path d="M30 30l-2 18 4 8 4-8-2-18z" fill="#0ea5e9" stroke="#0284c7" stroke-width="1.5"/>' },
-    { id:'petri', cat:'lab', name:'Petri Dish & Colonies', svg:'<ellipse cx="32" cy="24" rx="24" ry="10" fill="none" stroke="#64748b" stroke-width="2.2"/><ellipse cx="32" cy="34" rx="24" ry="10" fill="rgba(245,158,11,0.12)" stroke="#64748b" stroke-width="2.2"/><circle cx="24" cy="33" r="2.5" fill="#f59e0b"/><circle cx="38" cy="35" r="2" fill="#f59e0b"/><circle cx="30" cy="31" r="1.8" fill="#f59e0b"/>' },
-    { id:'plate96', cat:'lab', name:'96-Well Microplate', svg:'<rect x="8" y="14" width="48" height="36" rx="3" fill="#fafbfc" stroke="#64748b" stroke-width="2.2"/><circle cx="18" cy="23" r="3" fill="#0ea5e9"/><circle cx="27" cy="23" r="3" fill="#0ea5e9"/><circle cx="36" cy="23" r="3" fill="#0ea5e9"/><circle cx="45" cy="23" r="3" fill="#0ea5e9"/><circle cx="18" cy="32" r="3" fill="#f59e0b"/><circle cx="27" cy="32" r="3" fill="#f59e0b"/><circle cx="36" cy="32" r="3" fill="#f59e0b"/><circle cx="45" cy="32" r="3" fill="#f59e0b"/><circle cx="18" cy="41" r="3" fill="#e11d48"/><circle cx="27" cy="41" r="3" fill="#e11d48"/><circle cx="36" cy="41" r="3" fill="#e11d48"/><circle cx="45" cy="41" r="3" fill="#e11d48"/>' },
-    { id:'eppendorf', cat:'lab', name:'Microcentrifuge Tube', svg:'<path d="M22 10h20M24 10v24l8 18 8-18V10" fill="rgba(14,165,233,0.1)" stroke="#0284c7" stroke-width="2.5"/><path d="M24 24h16" stroke="#0284c7" stroke-width="1.8"/>' },
-    { id:'microscope', cat:'lab', name:'Optical Microscope', svg:'<path d="M20 54h24M32 54v-8M24 46h16M32 46c-8-6-8-22 0-26" fill="none" stroke="#0f172a" stroke-width="2.5"/><rect x="22" y="10" width="10" height="24" rx="2" transform="rotate(-30 27 22)" fill="#0ea5e9" stroke="#0284c7" stroke-width="2"/>' },
+    // --- Flowchart Primitives (cat: 'flowchart') ---
+    { id:'flow_process', cat:'flowchart', name:'Process Box', tags:['process box','action','step','flowchart','operation','task','stage'], svg:'<rect x="8" y="16" width="48" height="32" rx="6" fill="rgba(14,165,233,0.1)" stroke="#0284c7" stroke-width="2.5"/><line x1="16" y1="28" x2="38" y2="28" stroke="#0284c7" stroke-width="2.2" stroke-linecap="round"/><line x1="16" y1="36" x2="30" y2="36" stroke="#64748b" stroke-width="2" stroke-linecap="round"/><polyline points="42,29 46,32 42,35" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' },
+    { id:'flow_decision', cat:'flowchart', name:'Decision Diamond', tags:['decision diamond','condition','branch','if else','yes no','flowchart','qc check'], svg:'<polygon points="32,8 56,32 32,56 8,32" fill="rgba(245,158,11,0.12)" stroke="#d97706" stroke-width="2.5"/><text x="32" y="38" font-size="20" font-weight="700" fill="#d97706" text-anchor="middle" font-family="IBM Plex Sans">?</text>' },
+    { id:'flow_terminator', cat:'flowchart', name:'Terminator (Start/End)', tags:['terminator','start','end','stop','flowchart','capsule','entry','exit'], svg:'<rect x="8" y="20" width="48" height="24" rx="12" fill="rgba(5,150,105,0.12)" stroke="#059669" stroke-width="2.5"/><circle cx="22" cy="32" r="4" fill="#059669"/><line x1="30" y1="32" x2="44" y2="32" stroke="#059669" stroke-width="2.5" stroke-linecap="round"/>' },
+    { id:'flow_io', cat:'flowchart', name:'Input / Output (Data)', tags:['input output','io','data','sample feed','flowchart','parallelogram','readout'], svg:'<polygon points="18,18 56,18 46,46 8,46" fill="rgba(99,102,241,0.12)" stroke="#6366f1" stroke-width="2.5"/><polyline points="24,32 32,26 40,32" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/>' },
+    { id:'flow_document', cat:'flowchart', name:'Document / SOP Sheet', tags:['document','report','sop','protocol sheet','record','flowchart','documentation'], svg:'<path d="M14 10h36v34c-9-5-18 5-27 0-4-2-7-1-9 1z" fill="rgba(14,165,233,0.1)" stroke="#0284c7" stroke-width="2.5" stroke-linejoin="round"/><line x1="20" y1="20" x2="42" y2="20" stroke="#0284c7" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="26" x2="38" y2="26" stroke="#64748b" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="32" x2="32" y2="32" stroke="#64748b" stroke-width="2" stroke-linecap="round"/>' },
+    { id:'flow_connector', cat:'flowchart', name:'Off-Page Connector', tags:['off-page connector','flowchart connector','jump','reference','node','link'], svg:'<polygon points="12,14 52,14 52,38 32,52 12,38" fill="rgba(13,148,136,0.12)" stroke="#0d9488" stroke-width="2.5"/><circle cx="32" cy="28" r="6" fill="none" stroke="#0d9488" stroke-width="2"/><text x="32" y="32" font-size="10" font-weight="bold" fill="#0d9488" text-anchor="middle">A</text>' },
+    { id:'flow_delay', cat:'flowchart', name:'Process Delay / Wait', tags:['delay','wait','incubation time','pause','flowchart','hold','duration'], svg:'<path d="M12 16h24a16 16 0 0 1 0 32H12z" fill="rgba(245,158,11,0.1)" stroke="#d97706" stroke-width="2.5"/><polyline points="28,26 28,32 34,35" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round"/>' },
 
-    // Biochemistry & Signaling
-    { id:'rtk', cat:'signaling', name:'Receptor Kinase (RTK)', svg:'<path d="M26 8v16M38 8v16M22 24h20M28 24v24M36 24v24" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round"/><circle cx="26" cy="8" r="4" fill="#0284c7"/><circle cx="38" cy="8" r="4" fill="#0284c7"/><circle cx="28" cy="48" r="3.5" fill="#f59e0b"/><circle cx="36" cy="48" r="3.5" fill="#f59e0b"/>' },
-    { id:'gpcr', cat:'signaling', name:'GPCR 7-TM Receptor', svg:'<path d="M16 16v32M21 16v32M26 16v32M31 16v32M36 16v32M41 16v32M46 16v32" stroke="#0d9488" stroke-width="2.5" stroke-linecap="round"/><path d="M16 16c2-4 3-4 5 0s3 4 5 0 3-4 5 0 3 4 5 0 3-4 5 0 3 4 5 0" fill="none" stroke="#0d9488" stroke-width="2"/>' },
-    { id:'channel', cat:'signaling', name:'Ion Channel Pore', svg:'<rect x="18" y="14" width="10" height="36" rx="2" fill="#6366f1"/><rect x="36" y="14" width="10" height="36" rx="2" fill="#6366f1"/><path d="M32 10v44" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="4,4"/><circle cx="32" cy="50" r="3" fill="#f59e0b"/>' },
-    { id:'ptag', cat:'signaling', name:'Phosphate Tag (P)', svg:'<circle cx="32" cy="32" r="18" fill="#f59e0b" stroke="#d97706" stroke-width="2"/><text x="32" y="38" font-size="18" font-weight="700" fill="#ffffff" text-anchor="middle" font-family="IBM Plex Sans">P</text>' },
-    { id:'scissors', cat:'signaling', name:'Enzyme Cleavage', svg:'<circle cx="20" cy="42" r="6" fill="none" stroke="#e11d48" stroke-width="2.2"/><circle cx="44" cy="42" r="6" fill="none" stroke="#e11d48" stroke-width="2.2"/><path d="M24 38L40 14M40 38L24 14" stroke="#e11d48" stroke-width="2.5"/>' }
+    // --- Process & Measurement (cat: 'process') ---
+    { id:'timer_clock', cat:'process', name:'Incubation Timer', tags:['timer','clock','duration','incubation','minutes','hours','time','stopwatch','period'], svg:'<circle cx="32" cy="34" r="20" fill="rgba(14,165,233,0.1)" stroke="#0284c7" stroke-width="2.5"/><rect x="29" y="8" width="6" height="6" rx="1" fill="#0f172a"/><polyline points="32,22 32,34 40,34" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round"/><circle cx="32" cy="34" r="2.5" fill="#0284c7"/>' },
+    { id:'thermometer', cat:'process', name:'Thermometer', tags:['thermometer','temperature','celsius','heat','cold','37c','thermal','incubation temp'], svg:'<path d="M30 10a4 4 0 0 1 8 0v26a8 8 0 1 1-8 0z" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5"/><circle cx="34" cy="42" r="5" fill="#e11d48"/><line x1="34" y1="20" x2="34" y2="38" stroke="#e11d48" stroke-width="2.5"/><line x1="38" y1="16" x2="42" y2="16" stroke="#64748b" stroke-width="1.8"/><line x1="38" y1="22" x2="42" y2="22" stroke="#64748b" stroke-width="1.8"/><line x1="38" y1="28" x2="42" y2="28" stroke="#64748b" stroke-width="1.8"/>' },
+    { id:'ph_indicator', cat:'process', name:'pH Indicator Strip', tags:['ph indicator','ph strip','acidity','alkalinity','buffer check','litmus','neutralization'], svg:'<rect x="14" y="10" width="36" height="44" rx="4" fill="#fafbfc" stroke="#0f172a" stroke-width="2.5"/><rect x="20" y="16" width="24" height="6" rx="1" fill="#e11d48"/><rect x="20" y="24" width="24" height="6" rx="1" fill="#f59e0b"/><rect x="20" y="32" width="24" height="6" rx="1" fill="#059669"/><rect x="20" y="40" width="24" height="6" rx="1" fill="#0284c7"/>' },
+    { id:'drop_volume', cat:'process', name:'Volume / Droplet (µL)', tags:['droplet','volume','aliquot','microliter','milliliter','fluid','pipette volume','ul'], svg:'<path d="M32 10c0 0-14 16-14 26a14 14 0 0 0 28 0c0-10-14-26-14-26z" fill="rgba(14,165,233,0.18)" stroke="#0ea5e9" stroke-width="2.5"/><path d="M26 34a6 6 0 0 0 6 6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><text x="32" y="34" font-size="10" font-weight="700" fill="#0284c7" text-anchor="middle" font-family="IBM Plex Sans">µL</text>' },
+    { id:'mass_weight', cat:'process', name:'Mass / Scale Weight', tags:['mass','weight','grams','milligrams','scale','calibration','weighing','reagent weight'], svg:'<path d="M26 22c-6 4-8 14-8 26h28c0-12-2-22-8-26z" fill="rgba(245,158,11,0.15)" stroke="#d97706" stroke-width="2.5"/><circle cx="32" cy="16" r="6" fill="#f8fafc" stroke="#d97706" stroke-width="2.2"/><text x="32" y="42" font-size="11" font-weight="700" fill="#d97706" text-anchor="middle" font-family="IBM Plex Sans">mg</text>' },
+    { id:'rpm_speed', cat:'process', name:'RPM Centrifuge Speed', tags:['rpm','speed','centrifugation speed','g-force','rcf','spin rate','velocity'], svg:'<circle cx="32" cy="32" r="5" fill="#0f172a"/><path d="M32 14a18 18 0 1 1-15 8" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round"/><polyline points="12,18 17,22 22,17" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><text x="32" y="47" font-size="9" font-weight="bold" fill="#0f172a" text-anchor="middle" font-family="IBM Plex Sans">RPM</text>' },
+    { id:'warning_triangle', cat:'process', name:'Caution / Hazard Note', tags:['warning triangle','caution','alert','critical step','hazard','note','attention'], svg:'<polygon points="32,10 56,50 8,50" fill="rgba(245,158,11,0.18)" stroke="#d97706" stroke-width="2.5" stroke-linejoin="round"/><line x1="32" y1="24" x2="32" y2="38" stroke="#d97706" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="44" r="2" fill="#d97706"/>' },
+
+    // --- Specimens (cat: 'specimens') ---
+    { id:'blood_tube', cat:'specimens', name:'Blood Collection Tube', tags:['blood tube','vacutainer','plasma','serum','whole blood','clinical sample','edta','phlebotomy'], svg:'<rect x="25" y="8" width="14" height="8" rx="2" fill="#7c3aed" stroke="#6d28d9" stroke-width="1.8"/><path d="M26 16v32a6 6 0 0 0 12 0V16" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5"/><path d="M26 32v16a6 6 0 0 0 12 0V32" fill="#e11d48"/><line x1="29" y1="22" x2="35" y2="22" stroke="#64748b" stroke-width="1.8"/><line x1="29" y1="26" x2="35" y2="26" stroke="#64748b" stroke-width="1.8"/>' },
+    { id:'swab', cat:'specimens', name:'Sterile Collection Swab', tags:['swab','nasal swab','buccal','sterile swab','sampling','microbiology','specimen collection'], svg:'<line x1="14" y1="50" x2="42" y2="22" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="45" cy="19" rx="7" ry="4" transform="rotate(-45 45 19)" fill="rgba(14,165,233,0.18)" stroke="#0ea5e9" stroke-width="2"/>' },
+    { id:'tissue_sample', cat:'specimens', name:'Tissue Sample / Biopsy', tags:['tissue sample','biopsy','histology','pathology','paraffin block','specimen','organ'], svg:'<rect x="12" y="16" width="40" height="32" rx="4" fill="#f8fafc" stroke="#0f172a" stroke-width="2.5"/><rect x="18" y="22" width="28" height="20" rx="2" fill="rgba(225,29,72,0.1)" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="3,2"/><path d="M26 30c2-3 6-3 8 0s4 4 2 6-6 1-8-2z" fill="#e11d48" opacity="0.6"/>' },
+    { id:'tube_strip', cat:'specimens', name:'PCR Tube Strip (8-Well)', tags:['tube strip','pcr tubes','8-strip','wells','reaction tubes','sample strip','amplification strip'], svg:'<rect x="6" y="20" width="52" height="4" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.5"/><path d="M10 24v16l2 4 2-4V24" fill="rgba(14,165,233,0.15)" stroke="#0ea5e9" stroke-width="1.5"/><path d="M18 24v16l2 4 2-4V24" fill="rgba(14,165,233,0.15)" stroke="#0ea5e9" stroke-width="1.5"/><path d="M26 24v16l2 4 2-4V24" fill="rgba(14,165,233,0.15)" stroke="#0ea5e9" stroke-width="1.5"/><path d="M34 24v16l2 4 2-4V24" fill="rgba(14,165,233,0.15)" stroke="#0ea5e9" stroke-width="1.5"/><path d="M42 24v16l2 4 2-4V24" fill="rgba(14,165,233,0.15)" stroke="#0ea5e9" stroke-width="1.5"/><path d="M50 24v16l2 4 2-4V24" fill="rgba(14,165,233,0.15)" stroke="#0ea5e9" stroke-width="1.5"/>' },
+
+    // --- Cell Biology (cat: 'cells') ---
+    { id:'cell', cat:'cells', name:'Animal Cell', tags:['animal cell','confluent','confluency','organelle','plasma membrane','cytoplasm','eukaryote','cell biology'], svg:'<circle cx="32" cy="32" r="26" fill="rgba(14,165,233,0.08)" stroke="#0ea5e9" stroke-width="2.5"/><ellipse cx="30" cy="28" rx="9" ry="7" fill="rgba(14,165,233,0.2)" stroke="#0ea5e9" stroke-width="2"/><circle cx="45" cy="22" r="3" fill="#0d9488"/><circle cx="18" cy="42" r="2.5" fill="#f59e0b"/><circle cx="42" cy="46" r="2.5" fill="#e11d48"/>' },
+    { id:'plant_cell', cat:'cells', name:'Plant Cell Wall', tags:['plant cell wall','chloroplast','vacuole','botany','turgor','cellulose'], svg:'<rect x="6" y="8" width="52" height="48" rx="6" fill="rgba(5,150,105,0.08)" stroke="#059669" stroke-width="2.5"/><rect x="11" y="13" width="42" height="38" rx="4" fill="none" stroke="#059669" stroke-width="1.6"/><ellipse cx="32" cy="32" rx="14" ry="10" fill="rgba(14,165,233,0.15)" stroke="#0ea5e9" stroke-width="1.6"/><circle cx="20" cy="22" r="3" fill="#059669"/>' },
+    { id:'nucleus', cat:'cells', name:'Nucleus with Pores', tags:['nucleus with pores','dna','nucleolus','nuclear membrane','transcription','chromatin'], svg:'<circle cx="32" cy="32" r="24" fill="rgba(14,165,233,0.12)" stroke="#0ea5e9" stroke-width="2.5" stroke-dasharray="8,3"/><circle cx="32" cy="32" r="10" fill="rgba(14,165,233,0.3)" stroke="#0ea5e9" stroke-width="1.8"/><path d="M16 26c4 3 8-3 12 0s8-3 12 0" fill="none" stroke="#0ea5e9" stroke-width="1.4"/>' },
+    { id:'mitochondria', cat:'cells', name:'Mitochondrion', tags:['mitochondrion','atp','cristae','powerhouse','metabolism','respiration','energy'], svg:'<path d="M12 32c0-12 11-19 20-19s20 7 20 19-11 19-20 19-20-7-20-19z" fill="rgba(245,158,11,0.1)" stroke="#d97706" stroke-width="2.5"/><path d="M20 22c4 4 4 8 0 12M28 17c4 5 4 10 0 15M36 15c4 6 4 12 0 18M44 20c4 5 4 10 0 14" fill="none" stroke="#d97706" stroke-width="1.8"/>' },
+    { id:'golgi', cat:'cells', name:'Golgi Apparatus', tags:['golgi apparatus','cisternae','secretory pathway','vesicle packaging','protein trafficking'], svg:'<path d="M14 18c12 5 24 5 36 0" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round"/><path d="M12 28c14 6 26 6 40 0" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round"/><path d="M16 38c10 5 22 5 32 0" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round"/><circle cx="48" cy="14" r="2.5" fill="#0d9488"/><circle cx="12" cy="44" r="2.5" fill="#0d9488"/>' },
+    { id:'er', cat:'cells', name:'Endoplasmic Reticulum', tags:['endoplasmic reticulum','rough er','smooth er','ribosomes','protein folding','lumen'], svg:'<path d="M12 18c10-6 20 6 30 0s10 6 10 12-10 6-10 12 10 6-10 12-20-6-30 0" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/><circle cx="16" cy="18" r="1.5" fill="#6366f1"/><circle cx="28" cy="24" r="1.5" fill="#6366f1"/><circle cx="38" cy="30" r="1.5" fill="#6366f1"/>' },
+    { id:'lysosome', cat:'cells', name:'Lysosome', tags:['lysosome','hydrolase','acidic','degradation','autophagy','organelle'], svg:'<circle cx="32" cy="32" r="20" fill="rgba(225,29,72,0.1)" stroke="#e11d48" stroke-width="2.5"/><circle cx="26" cy="28" r="2.5" fill="#e11d48"/><circle cx="38" cy="36" r="3" fill="#e11d48"/><circle cx="34" cy="24" r="2" fill="#e11d48"/>' },
+    { id:'chloroplast', cat:'cells', name:'Chloroplast', tags:['chloroplast','thylakoid','photosynthesis','grana','stroma','plant'], svg:'<ellipse cx="32" cy="32" rx="24" ry="16" fill="rgba(5,150,105,0.1)" stroke="#059669" stroke-width="2.5"/><line x1="20" y1="26" x2="20" y2="38" stroke="#059669" stroke-width="3"/><line x1="32" y1="22" x2="32" y2="42" stroke="#059669" stroke-width="3"/><line x1="44" y1="26" x2="44" y2="38" stroke="#059669" stroke-width="3"/><line x1="16" y1="32" x2="48" y2="32" stroke="#059669" stroke-width="1.5"/>' },
+
+    // --- Genetics & Molecular (cat: 'molecular') ---
+    { id:'dna_icon', cat:'molecular', name:'DNA Helix Segment', tags:['dna helix segment','double helix','nucleic acid','genes','base pairs','watson crick'], svg:'<path d="M20 8c0 12 24 12 24 24s-24 12-24 24" fill="none" stroke="#0ea5e9" stroke-width="2.5"/><path d="M44 8c0 12-24 12-24 24s24 12 24 24" fill="none" stroke="#f97316" stroke-width="2.5"/><path d="M21 16h22M20 24h24M21 32h22M20 40h24M21 48h22" stroke="#64748b" stroke-width="1.8"/>' },
+    { id:'trna', cat:'molecular', name:'tRNA Cloverleaf', tags:['trna cloverleaf','transfer rna','anticodon','translation','amino acid carrier'], svg:'<path d="M32 8v16M24 24c-8-4-12 4-4 8 4 2 8-2 12-8M40 24c8-4 12 4 4 8-4 2-8-2-12-8M32 24v20c-6 4-6 12 0 12s6-8 0-12" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round"/>' },
+    { id:'ribosome', cat:'molecular', name:'Ribosome Complex', tags:['ribosome complex','translation','mrna','80s','peptide synthesis','protein production'], svg:'<ellipse cx="32" cy="22" rx="18" ry="11" fill="rgba(13,148,136,0.2)" stroke="#0d9488" stroke-width="2.5"/><ellipse cx="32" cy="38" rx="24" ry="14" fill="rgba(13,148,136,0.3)" stroke="#0d9488" stroke-width="2.5"/><line x1="12" y1="28" x2="52" y2="28" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3,3"/>' },
+    { id:'crispr', cat:'molecular', name:'CRISPR-Cas9 Complex', tags:['crispr-cas9 complex','gene editing','guide rna','endonuclease','target cleavage'], svg:'<path d="M16 20c16-10 32-4 32 12s-16 22-32 12z" fill="rgba(2,132,199,0.15)" stroke="#0284c7" stroke-width="2.5"/><path d="M12 28h40" stroke="#f97316" stroke-width="2.5"/><path d="M24 28c4 8 16 8 20 0" fill="none" stroke="#e11d48" stroke-width="2"/>' },
+    { id:'plasmid', cat:'molecular', name:'Circular Plasmid', tags:['circular plasmid','cloning vector','origin of replication','resistance marker','recombinant'], svg:'<circle cx="32" cy="32" r="22" fill="none" stroke="#64748b" stroke-width="3"/><path d="M32 10a22 22 0 0 1 22 22" fill="none" stroke="#0ea5e9" stroke-width="5"/><path d="M20 50a22 22 0 0 1-10-18" fill="none" stroke="#e11d48" stroke-width="5"/><circle cx="32" cy="10" r="2.5" fill="#0f172a"/>' },
+    { id:'virus', cat:'molecular', name:'Bacteriophage', tags:['bacteriophage','phage','capsid','viral transduction','sheath','tail fibers'], svg:'<polygon points="32,8 46,18 46,30 32,40 18,30 18,18" fill="none" stroke="#0f172a" stroke-width="2.2"/><line x1="32" y1="40" x2="32" y2="52" stroke="#0f172a" stroke-width="2.5"/><path d="M32 52l-12 8M32 52l12 8M32 46l-10 6M32 46l10 6" stroke="#0f172a" stroke-width="1.8"/>' },
+
+    // --- Labware (cat: 'lab') ---
+    { id:'flask_erlenmeyer', cat:'lab', name:'Erlenmeyer Flask', tags:['erlenmeyer flask','glassware','culture flask','mixing','conical flask','chemistry'], svg:'<path d="M26 8h12M28 8v12l-14 28a4 4 0 0 0 3.6 6h28.8a4 4 0 0 0 3.6-6L36 20V8" fill="rgba(14,165,233,0.1)" stroke="#0284c7" stroke-width="2.5" stroke-linejoin="round"/><path d="M19 42h26" stroke="#0284c7" stroke-width="2"/><line x1="24" y1="36" x2="28" y2="36" stroke="#64748b" stroke-width="1.5"/><line x1="22" y1="42" x2="28" y2="42" stroke="#64748b" stroke-width="1.5"/>' },
+    { id:'beaker', cat:'lab', name:'Beaker with Fluid', tags:['beaker with fluid','glassware','graduated','solution','mixing','liquid volume'], svg:'<path d="M16 10h34M18 10v40a4 4 0 0 0 4 4h22a4 4 0 0 0 4-4V10" fill="rgba(13,148,136,0.1)" stroke="#0d9488" stroke-width="2.5"/><path d="M18 32h30" stroke="#0d9488" stroke-width="2"/><line x1="20" y1="24" x2="26" y2="24" stroke="#64748b" stroke-width="1.5"/><line x1="20" y1="32" x2="28" y2="32" stroke="#64748b" stroke-width="1.5"/><line x1="20" y1="40" x2="26" y2="40" stroke="#64748b" stroke-width="1.5"/>' },
+    { id:'test_tube', cat:'lab', name:'Test Tube & Meniscus', tags:['test tube & meniscus','glassware','incubation','reaction tube','meniscus','solution'], svg:'<path d="M24 8h16M28 8v38a4 4 0 0 0 8 0V8" fill="rgba(225,29,72,0.1)" stroke="#e11d48" stroke-width="2.5"/><path d="M28 32c4-2 4 2 8 0" stroke="#e11d48" stroke-width="2"/>' },
+    { id:'micropipette', cat:'lab', name:'Micropipette', tags:['micropipette','pipettor','aliquot','pipetting','volume transfer','liquid handling'], svg:'<rect x="29" y="6" width="6" height="24" rx="2" fill="#0f172a"/><rect x="27" y="12" width="10" height="12" rx="1" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.5"/><path d="M30 30l-2 18 4 8 4-8-2-18z" fill="#0ea5e9" stroke="#0284c7" stroke-width="1.5"/>' },
+    { id:'petri', cat:'lab', name:'Petri Dish & Colonies', tags:['petri dish & colonies','agar plate','bacterial culture','colony forming units','cfu','streak'], svg:'<ellipse cx="32" cy="24" rx="24" ry="10" fill="none" stroke="#64748b" stroke-width="2.2"/><ellipse cx="32" cy="34" rx="24" ry="10" fill="rgba(245,158,11,0.12)" stroke="#64748b" stroke-width="2.2"/><circle cx="24" cy="33" r="2.5" fill="#f59e0b"/><circle cx="38" cy="35" r="2" fill="#f59e0b"/><circle cx="30" cy="31" r="1.8" fill="#f59e0b"/>' },
+    { id:'plate96', cat:'lab', name:'96-Well Microplate', tags:['96-well microplate','elisa plate','high throughput','screening','microtiter','absorbance'], svg:'<rect x="8" y="14" width="48" height="36" rx="3" fill="#fafbfc" stroke="#64748b" stroke-width="2.2"/><circle cx="18" cy="23" r="3" fill="#0ea5e9"/><circle cx="27" cy="23" r="3" fill="#0ea5e9"/><circle cx="36" cy="23" r="3" fill="#0ea5e9"/><circle cx="45" cy="23" r="3" fill="#0ea5e9"/><circle cx="18" cy="32" r="3" fill="#f59e0b"/><circle cx="27" cy="32" r="3" fill="#f59e0b"/><circle cx="36" cy="32" r="3" fill="#f59e0b"/><circle cx="45" cy="32" r="3" fill="#f59e0b"/><circle cx="18" cy="41" r="3" fill="#e11d48"/><circle cx="27" cy="41" r="3" fill="#e11d48"/><circle cx="36" cy="41" r="3" fill="#e11d48"/><circle cx="45" cy="41" r="3" fill="#e11d48"/>' },
+    { id:'eppendorf', cat:'lab', name:'Microcentrifuge Tube', tags:['microcentrifuge tube','1.5ml tube','pellet','centrifugation','sample tube','aliquot'], svg:'<path d="M22 10h20M24 10v24l8 18 8-18V10" fill="rgba(14,165,233,0.1)" stroke="#0284c7" stroke-width="2.5"/><path d="M24 24h16" stroke="#0284c7" stroke-width="1.8"/>' },
+    { id:'microscope', cat:'lab', name:'Optical Microscope', tags:['optical microscope','brightfield','fluorescence','magnification','objective lens','imaging'], svg:'<path d="M20 54h24M32 54v-8M24 46h16M32 46c-8-6-8-22 0-26" fill="none" stroke="#0f172a" stroke-width="2.5"/><rect x="22" y="10" width="10" height="24" rx="2" transform="rotate(-30 27 22)" fill="#0ea5e9" stroke="#0284c7" stroke-width="2"/>' },
+
+    // --- Biochemistry & Signaling (cat: 'signaling') ---
+    { id:'rtk', cat:'signaling', name:'Receptor Kinase (RTK)', tags:['receptor kinase (rtk)','transmembrane receptor','dimer','autophosphorylation','signaling'], svg:'<path d="M26 8v16M38 8v16M22 24h20M28 24v24M36 24v24" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round"/><circle cx="26" cy="8" r="4" fill="#0284c7"/><circle cx="38" cy="8" r="4" fill="#0284c7"/><circle cx="28" cy="48" r="3.5" fill="#f59e0b"/><circle cx="36" cy="48" r="3.5" fill="#f59e0b"/>' },
+    { id:'gpcr', cat:'signaling', name:'GPCR 7-TM Receptor', tags:['gpcr 7-tm receptor','g-protein coupled receptor','heptahelical','signal transduction','membrane protein'], svg:'<path d="M16 16v32M21 16v32M26 16v32M31 16v32M36 16v32M41 16v32M46 16v32" stroke="#0d9488" stroke-width="2.5" stroke-linecap="round"/><path d="M16 16c2-4 3-4 5 0s3 4 5 0 3-4 5 0 3 4 5 0 3-4 5 0 3 4 5 0" fill="none" stroke="#0d9488" stroke-width="2"/>' },
+    { id:'channel', cat:'signaling', name:'Ion Channel Pore', tags:['ion channel pore','membrane transport','gated pore','calcium','sodium','potassium channel'], svg:'<rect x="18" y="14" width="10" height="36" rx="2" fill="#6366f1"/><rect x="36" y="14" width="10" height="36" rx="2" fill="#6366f1"/><path d="M32 10v44" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="4,4"/><circle cx="32" cy="50" r="3" fill="#f59e0b"/>' },
+    { id:'ptag', cat:'signaling', name:'Phosphate Tag (P)', tags:['phosphate tag (p)','phosphorylation','post translational modification','ptm','active kinase'], svg:'<circle cx="32" cy="32" r="18" fill="#f59e0b" stroke="#d97706" stroke-width="2"/><text x="32" y="38" font-size="18" font-weight="700" fill="#ffffff" text-anchor="middle" font-family="IBM Plex Sans">P</text>' },
+    { id:'scissors', cat:'signaling', name:'Enzyme Cleavage', tags:['enzyme cleavage','restriction enzyme','protease','cleavage site','cutting'], svg:'<circle cx="20" cy="42" r="6" fill="none" stroke="#e11d48" stroke-width="2.2"/><circle cx="44" cy="42" r="6" fill="none" stroke="#e11d48" stroke-width="2.2"/><path d="M24 38L40 14M40 38L24 14" stroke="#e11d48" stroke-width="2.5"/>' }
   ];
 
   function renderAssetGrid(category, query){
     var grid = document.getElementById('assetGrid');
     grid.innerHTML = '';
+    var q = (query || '').toLowerCase().trim();
     var filtered = ASSET_CATALOG.filter(function(a){
       var matchCat = (category === 'all' || a.cat === category);
-      var matchQ = (!query || a.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+      var matchQ = !q || (
+        a.name.toLowerCase().indexOf(q) !== -1 ||
+        (a.tags && a.tags.some(function(t){ return t.toLowerCase().indexOf(q) !== -1; }))
+      );
       return matchCat && matchQ;
     });
 
@@ -3043,6 +4202,9 @@
   });
 
   renderAssetGrid('all', '');
+  initWorkflowFlyout();
+  renderTemplatesTab();
+  renderPalettesTab();
 
   /* ======================================================================
      14. CHEMINFORMATICS & MOLECULE ENGINE (SMILES + PUBCHEM)
