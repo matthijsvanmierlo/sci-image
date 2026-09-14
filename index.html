@@ -186,6 +186,14 @@
     min-width: 44px;
     text-align: center;
     user-select: none;
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: var(--radius-sm);
+    transition: background 0.12s, color 0.12s;
+  }
+  .zoom-readout:hover {
+    background: var(--chrome-700);
+    color: #38bdf8;
   }
 
   .btn {
@@ -507,28 +515,47 @@
   /* Canvas Stage */
   .stage {
     position: relative;
-    background: #e2e8f0;
+    background: #cbd5e1;
     overflow: auto;
     display: flex;
-    background-image: radial-gradient(rgba(100, 116, 139, 0.25) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(71, 85, 105, 0.28) 1.2px, transparent 1.2px);
     background-size: 24px 24px;
   }
   .stage-inner {
     margin: auto;
-    padding: 60px;
-    display: inline-block;
+    padding: 30px 50px 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .artboard-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    color: #475569;
+    font-size: 11.5px;
+    font-weight: 500;
+    user-select: none;
+    padding: 0 2px;
+  }
+  .artboard-meta-badge {
+    background: #e2e8f0;
+    border: 1px solid #94a3b8;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1e293b;
   }
   .canvas-shell {
     position: relative;
-    box-shadow: 0 4px 20px rgba(12, 20, 36, 0.15), 0 1px 3px rgba(12, 20, 36, 0.1);
-    background:
-      linear-gradient(45deg, #eef2f6 25%, transparent 25%),
-      linear-gradient(-45deg, #eef2f6 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, #eef2f6 75%),
-      linear-gradient(-45deg, transparent 75%, #eef2f6 75%);
-    background-size: 16px 16px;
-    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
-    border-radius: 2px;
+    border: 1.5px solid #64748b;
+    box-shadow: 0 12px 35px -5px rgba(15, 23, 42, 0.22), 0 4px 10px -2px rgba(15, 23, 42, 0.1);
+    background: #ffffff;
+    border-radius: 3px;
+    overflow: hidden;
   }
   .canvas-shell.bg-white { background: var(--canvas-white); }
   .canvas-shell.bg-dark { background: #0f172a; }
@@ -1516,6 +1543,10 @@
     <!-- Canvas Stage -->
     <main class="stage" id="stage" tabindex="-1" aria-label="Drawing canvas viewport">
       <div class="stage-inner">
+        <div class="artboard-meta" id="artboardMeta">
+          <span>Artboard: <strong id="artboardPresetName">Single Column</strong> (<span id="artboardDims">1004 × 750 px</span>)</span>
+          <span class="artboard-meta-badge" id="artboardScaleBadge">100%</span>
+        </div>
         <div class="canvas-shell bg-white" id="canvasShell">
           <div class="grid-overlay" id="gridOverlay"></div>
           <canvas id="c"></canvas>
@@ -1802,7 +1833,8 @@
     flowColor: '#0ea5e9',
     flowDirection: 'horizontal',
     autoConnectFlow: true,
-    stickyConnectors: true
+    stickyConnectors: true,
+    suppressLiveEvents: false
   };
 
   var CANVAS_PRESETS = {
@@ -1813,11 +1845,18 @@
     slide: { w: 1920, h: 1080, label: 'Slide Presentation (16:9 HD)' }
   };
 
+  function findObjectById(id){
+    if (!id) return null;
+    var objs = canvas.getObjects();
+    for (var i = 0; i < objs.length; i++){
+      if (objs[i].id === id) return objs[i];
+    }
+    return null;
+  }
+
   function setCanvasSize(w, h){
     state.docWidth = w;
     state.docHeight = h;
-    canvas.setWidth(w);
-    canvas.setHeight(h);
     applyZoom(state.zoom);
     refreshStatus();
   }
@@ -1825,7 +1864,7 @@
   var history = { stack: [], index: -1, suppress: false };
 
   function pushHistory(){
-    if (history.suppress) return;
+    if (history.suppress || state.suppressLiveEvents) return;
     var json = JSON.stringify(canvas.toJSON(['id','name','selectable','evented','lockMovementX','lockMovementY','hasControls','hasBorders','isFlowStep','flowNum','flowTitle','flowDesc','flowColor','cardW','cardH','isFlowConnector','sourceId','targetId','connectorColor','connectorWidth','connectorLabel','isDecision','decisionQuestion','yesLabel','noLabel','decisionColor','isSwimlane','laneOrientation','laneTitle']));
     history.stack = history.stack.slice(0, history.index + 1);
     history.stack.push(json);
@@ -1866,9 +1905,20 @@
   document.getElementById('btnUndo').addEventListener('click', undo);
   document.getElementById('btnRedo').addEventListener('click', redo);
 
-  canvas.on('object:added', function(){ pushHistory(); refreshAll(); });
-  canvas.on('object:removed', function(){ pushHistory(); refreshAll(); });
-  canvas.on('object:modified', function(){ pushHistory(); refreshAll(); });
+  canvas.on('object:added', function(){
+    if (state.suppressLiveEvents) return;
+    pushHistory();
+    refreshAll();
+  });
+  canvas.on('object:removed', function(){
+    if (state.suppressLiveEvents) return;
+    pushHistory();
+    refreshAll();
+  });
+  canvas.on('object:modified', function(){
+    pushHistory();
+    refreshAll();
+  });
   canvas.on('selection:created', refreshAll);
   canvas.on('selection:updated', refreshAll);
   canvas.on('selection:cleared', refreshAll);
@@ -1892,6 +1942,22 @@
     if (countEl) countEl.textContent = n + (n === 1 ? ' object' : ' objects');
     var snapEl = document.getElementById('statSnap');
     if (snapEl) snapEl.textContent = 'Snap: ' + (state && state.snap ? state.snapSize + 'px' : 'Off');
+
+    var bPreset = document.getElementById('artboardPresetName');
+    if (bPreset){
+      var pName = 'Custom Artboard';
+      for (var k in CANVAS_PRESETS){
+        if (CANVAS_PRESETS[k].w === state.docWidth && CANVAS_PRESETS[k].h === state.docHeight){
+          pName = CANVAS_PRESETS[k].label.split('(')[0].trim();
+          break;
+        }
+      }
+      bPreset.textContent = pName;
+    }
+    var bDims = document.getElementById('artboardDims');
+    if (bDims) bDims.textContent = (state.docWidth || canvas.getWidth()) + ' × ' + (state.docHeight || canvas.getHeight()) + ' px';
+    var bBadge = document.getElementById('artboardScaleBadge');
+    if (bBadge) bBadge.textContent = Math.round((state.zoom || 1) * 100) + '%';
   }
 
   function idFor(o){
@@ -2023,13 +2089,13 @@
       return { x: 0, y: 0 };
     }
 
-    var cssW = rect.width || canvas.getWidth();
-    var cssH = rect.height || canvas.getHeight();
-    var scaleX = canvas.getWidth() / cssW;
-    var scaleY = canvas.getHeight() / cssH;
+    var z = canvas.getZoom() || state.zoom || 1;
+    var vpt = canvas.viewportTransform || [1, 0, 0, 1, 0, 0];
+    var vptX = (vpt && typeof vpt[4] === 'number') ? vpt[4] : 0;
+    var vptY = (vpt && typeof vpt[5] === 'number') ? vpt[5] : 0;
 
-    var x = (clientX - rect.left) * scaleX;
-    var y = (clientY - rect.top) * scaleY;
+    var x = (clientX - rect.left - vptX) / z;
+    var y = (clientY - rect.top - vptY) / z;
 
     return {
       x: isNaN(x) ? 0 : x,
@@ -2281,6 +2347,8 @@
       updateAttachedConnectors(e.target);
     }
     pushHistory();
+    refreshLayers();
+    refreshStatus();
   });
 
   /* Double-click to inspect & edit Flow Step or Decision directly */
@@ -2320,22 +2388,44 @@
   /* ======================================================================
      7. ZOOM & PAN ENGINE
   ====================================================================== */
+  var ZOOM_STEPS = [0.5, 0.67, 0.75, 0.9, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0];
+  function getNextZoom(dir){
+    var cur = state.zoom || 1;
+    if (dir > 0){
+      for (var i = 0; i < ZOOM_STEPS.length; i++){
+        if (ZOOM_STEPS[i] > cur + 0.01) return ZOOM_STEPS[i];
+      }
+      return 3.0;
+    } else {
+      for (var j = ZOOM_STEPS.length - 1; j >= 0; j--){
+        if (ZOOM_STEPS[j] < cur - 0.01) return ZOOM_STEPS[j];
+      }
+      return 0.5;
+    }
+  }
+
   function applyZoom(z){
-    z = Math.max(0.15, Math.min(4, z));
+    z = Math.max(0.5, Math.min(3.0, z));
     state.zoom = z;
-    canvas.setZoom(z);
+    var newW = Math.round(state.docWidth * z);
+    var newH = Math.round(state.docHeight * z);
+
     canvas.setDimensions({
-      width: Math.round(state.docWidth * z),
-      height: Math.round(state.docHeight * z)
-    }, { cssOnly: true });
+      width: newW,
+      height: newH
+    });
+    canvas.setZoom(z);
 
     var shell = document.getElementById('canvasShell');
     if (shell){
-      shell.style.width = Math.round(state.docWidth * z) + 'px';
-      shell.style.height = Math.round(state.docHeight * z) + 'px';
+      shell.style.width = newW + 'px';
+      shell.style.height = newH + 'px';
     }
     var zEl = document.getElementById('zoomReadout');
     if (zEl) zEl.textContent = Math.round(z * 100) + '%';
+    var bBadge = document.getElementById('artboardScaleBadge');
+    if (bBadge) bBadge.textContent = Math.round(z * 100) + '%';
+
     canvas.calcOffset();
     canvas.requestRenderAll();
   }
@@ -2343,11 +2433,11 @@
   function zoomFit(){
     var stage = document.getElementById('stage');
     if (!stage) return;
-    var padding = 80;
+    var padding = 100;
     var sw = stage.clientWidth - padding, sh = stage.clientHeight - padding;
     if (sw <= 0 || sh <= 0) return;
-    var z = Math.min(sw / state.docWidth, sh / state.docHeight, 1.25);
-    applyZoom(Math.max(0.15, z));
+    var z = Math.min(sw / state.docWidth, sh / state.docHeight, 1.0);
+    applyZoom(Math.max(0.5, z));
     stage.scrollLeft = 0;
     stage.scrollTop = 0;
     canvas.viewportTransform[4] = 0;
@@ -2355,14 +2445,19 @@
     canvas.requestRenderAll();
   }
 
-  document.getElementById('btnZoomIn').addEventListener('click', function(){ applyZoom(state.zoom * 1.25); });
-  document.getElementById('btnZoomOut').addEventListener('click', function(){ applyZoom(state.zoom / 1.25); });
+  document.getElementById('btnZoomIn').addEventListener('click', function(){ applyZoom(getNextZoom(1)); });
+  document.getElementById('btnZoomOut').addEventListener('click', function(){ applyZoom(getNextZoom(-1)); });
   document.getElementById('btnZoomFit').addEventListener('click', zoomFit);
+  var zReadout = document.getElementById('zoomReadout');
+  if (zReadout){
+    zReadout.title = 'Click to reset zoom to 100%';
+    zReadout.addEventListener('click', function(){ applyZoom(1.0); });
+  }
 
   document.getElementById('stage').addEventListener('wheel', function(e){
     if (!(e.ctrlKey || e.metaKey)) return;
     e.preventDefault();
-    applyZoom(state.zoom * (e.deltaY < 0 ? 1.08 : 0.92));
+    applyZoom(getNextZoom(e.deltaY < 0 ? 1 : -1));
   }, { passive: false });
 
   window.addEventListener('keydown', function(e){
@@ -3517,55 +3612,60 @@
     });
     if (!connectors.length) return;
 
-    connectors.forEach(function(c){
-      var src = findObjectById(c.sourceId);
-      var tgt = findObjectById(c.targetId);
-      if (!src || !tgt) return;
+    state.suppressLiveEvents = true;
+    try {
+      connectors.forEach(function(c){
+        var src = findObjectById(c.sourceId);
+        var tgt = findObjectById(c.targetId);
+        if (!src || !tgt) return;
 
-      var pts = computeConnectorEndpoints(src, tgt);
-      var x1 = pts.x1, y1 = pts.y1, x2 = pts.x2, y2 = pts.y2;
+        var pts = computeConnectorEndpoints(src, tgt);
+        var x1 = pts.x1, y1 = pts.y1, x2 = pts.x2, y2 = pts.y2;
 
-      var color = c.connectorColor || '#0ea5e9';
-      var label = c.connectorLabel || '';
-      var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+        var color = c.connectorColor || '#0ea5e9';
+        var label = c.connectorLabel || '';
+        var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
 
-      var line = new fabric.Line([x1, y1, x2, y2], { stroke: color, strokeWidth: 2.5, strokeLineCap: 'round' });
-      var head = new fabric.Triangle({
-        left: x2, top: y2, width: 14, height: 16, fill: color,
-        angle: angle + 90, originX: 'center', originY: 'center'
-      });
-      var items = [line, head];
-      if (label){
-        var mx = (x1 + x2) / 2;
-        var my = (y1 + y2) / 2 - 12;
-        var bgText = new fabric.Rect({
-          left: mx, top: my, rx: 3, ry: 3,
-          fill: '#ffffff', stroke: color, strokeWidth: 1, originX: 'center', originY: 'center'
+        var line = new fabric.Line([x1, y1, x2, y2], { stroke: color, strokeWidth: 2.5, strokeLineCap: 'round' });
+        var head = new fabric.Triangle({
+          left: x2, top: y2, width: 14, height: 16, fill: color,
+          angle: angle + 90, originX: 'center', originY: 'center'
         });
-        var lbl = new fabric.Text(label, {
-          left: mx, top: my, fontSize: 11, fontWeight: 700, fill: color,
-          fontFamily: 'IBM Plex Sans', originX: 'center', originY: 'center'
+        var items = [line, head];
+        if (label){
+          var mx = (x1 + x2) / 2;
+          var my = (y1 + y2) / 2 - 12;
+          var bgText = new fabric.Rect({
+            left: mx, top: my, rx: 3, ry: 3,
+            fill: '#ffffff', stroke: color, strokeWidth: 1, originX: 'center', originY: 'center'
+          });
+          var lbl = new fabric.Text(label, {
+            left: mx, top: my, fontSize: 11, fontWeight: 700, fill: color,
+            fontFamily: 'IBM Plex Sans', originX: 'center', originY: 'center'
+          });
+          bgText.set({ width: lbl.width + 8, height: lbl.height + 4 });
+          items.push(bgText, lbl);
+        }
+
+        var newGroup = new fabric.Group(items, {
+          name: c.name || 'Flow Connector',
+          isFlowConnector: true,
+          sourceId: c.sourceId,
+          targetId: c.targetId,
+          connectorColor: color,
+          connectorLabel: label,
+          id: c.id
         });
-        bgText.set({ width: lbl.width + 8, height: lbl.height + 4 });
-        items.push(bgText, lbl);
-      }
 
-      var newGroup = new fabric.Group(items, {
-        name: c.name || 'Flow Connector',
-        isFlowConnector: true,
-        sourceId: c.sourceId,
-        targetId: c.targetId,
-        connectorColor: color,
-        connectorLabel: label,
-        id: c.id
+        var idx = canvas.getObjects().indexOf(c);
+        if (idx !== -1){
+          canvas.insertAt(newGroup, idx);
+          canvas.remove(c);
+        }
       });
-
-      var idx = canvas.getObjects().indexOf(c);
-      if (idx !== -1){
-        canvas.insertAt(newGroup, idx);
-        canvas.remove(c);
-      }
-    });
+    } finally {
+      state.suppressLiveEvents = false;
+    }
 
     canvas.requestRenderAll();
   }
@@ -4403,12 +4503,20 @@
     });
   }
 
+  function getDocCenter(){
+    return {
+      x: (state.docWidth || canvas.getWidth()) / 2,
+      y: (state.docHeight || canvas.getHeight()) / 2
+    };
+  }
+
   function placeAsset(a){
     fabric.loadSVGFromString(svgWrap(a.svg), function(objects, options){
       var group = fabric.util.groupSVGElements(objects, options);
+      var center = getDocCenter();
       group.set({
-        left: canvas.getWidth() / 2,
-        top: canvas.getHeight() / 2,
+        left: center.x,
+        top: center.y,
         originX: 'center',
         originY: 'center',
         scaleX: 1.8,
@@ -4562,8 +4670,9 @@
     });
     objs.push(label);
 
+    var center = getDocCenter();
     var group = new fabric.Group(objs, {
-      left: canvas.getWidth() / 2, top: canvas.getHeight() / 2, originX: 'center', originY: 'center', name: moleculeName || 'Molecule'
+      left: center.x, top: center.y, originX: 'center', originY: 'center', name: moleculeName || 'Molecule'
     });
     idFor(group);
     canvas.add(group);
@@ -4671,7 +4780,8 @@
 
   function generateVesicleObjects(radius, lipidCount, isBilayer){
     var objs = [];
-    var cx = canvas.getWidth() / 2, cy = canvas.getHeight() / 2;
+    var center = getDocCenter();
+    var cx = center.x, cy = center.y;
 
     for (var i = 0; i < lipidCount; i++){
       var theta = (i / lipidCount) * 2 * Math.PI;
@@ -4704,7 +4814,8 @@
   document.getElementById('btnInsertWavyMembrane').addEventListener('click', function(){
     var len = parseInt(document.getElementById('wavyLength').value, 10) || 600;
     var waves = parseInt(document.getElementById('wavyCount').value, 10) || 3;
-    var objs = generateWavyMembraneObjects(len, waves, (canvas.getWidth() - len) / 2, canvas.getHeight() / 2);
+    var center = getDocCenter();
+    var objs = generateWavyMembraneObjects(len, waves, center.x - len / 2, center.y);
     var group = new fabric.Group(objs, { name: 'Fluid Wavy Membrane' });
     idFor(group);
     canvas.add(group);
@@ -4885,7 +4996,8 @@
   document.getElementById('btnGenDNA').addEventListener('click', function(){
     var len = parseInt(document.getElementById('dnaLength').value, 10) || 500;
     var turns = parseInt(document.getElementById('dnaTurns').value, 10) || 3;
-    var objs = generateDNAObjects(len, turns, (canvas.getWidth() - len) / 2, canvas.getHeight() / 2);
+    var center = getDocCenter();
+    var objs = generateDNAObjects(len, turns, center.x - len / 2, center.y);
     var group = new fabric.Group(objs, { name: 'DNA Double Helix' });
     idFor(group);
     canvas.add(group);
@@ -4897,7 +5009,8 @@
   document.getElementById('btnGenAlphaHelix').addEventListener('click', function(){
     var objs = [];
     var turns = 6, pitch = 22, r = 18;
-    var cx = canvas.getWidth() / 2, cy = canvas.getHeight() / 2;
+    var center = getDocCenter();
+    var cx = center.x, cy = center.y;
     for (var i = 0; i < turns; i++){
       var y = cy - (turns * pitch) / 2 + i * pitch;
       // Front loop
@@ -4914,7 +5027,8 @@
   });
 
   document.getElementById('btnGenBetaSheet').addEventListener('click', function(){
-    var cx = canvas.getWidth() / 2, cy = canvas.getHeight() / 2;
+    var center = getDocCenter();
+    var cx = center.x, cy = center.y;
     var strand1 = new fabric.Polygon([
       { x: cx - 120, y: cy - 20 }, { x: cx - 60, y: cy - 28 }, { x: cx, y: cy - 20 }, { x: cx + 60, y: cy - 28 }, { x: cx + 110, y: cy - 20 },
       { x: cx + 110, y: cy - 35 }, { x: cx + 140, y: cy - 20 }, { x: cx + 110, y: cy - 5 }, { x: cx + 110, y: cy - 12 },
@@ -4936,7 +5050,8 @@
   });
 
   document.getElementById('btnGenAntibody').addEventListener('click', function(){
-    var cx = canvas.getWidth() / 2, cy = canvas.getHeight() / 2;
+    var center = getDocCenter();
+    var cx = center.x, cy = center.y;
     // Y-shaped antibody
     var fc = new fabric.Rect({ left: cx - 7, top: cy, width: 14, height: 60, fill: '#0284c7', rx: 3, ry: 3 });
     var fabL = new fabric.Rect({ left: cx - 44, top: cy - 44, width: 14, height: 50, fill: '#0ea5e9', rx: 3, ry: 3, angle: -35 });
@@ -4954,7 +5069,8 @@
   });
 
   document.getElementById('btnGenRNAHairpin').addEventListener('click', function(){
-    var cx = canvas.getWidth() / 2, cy = canvas.getHeight() / 2;
+    var center = getDocCenter();
+    var cx = center.x, cy = center.y;
     var objs = [];
     // Stem rungs
     for (var i = 0; i < 6; i++){
@@ -5141,7 +5257,16 @@
       exportMenu.classList.remove('open');
 
       if (kind === 'svg'){
-        var svgData = canvas.toSVG();
+        var svgData = canvas.toSVG({
+          viewBox: {
+            x: 0,
+            y: 0,
+            width: state.docWidth,
+            height: state.docHeight
+          },
+          width: state.docWidth + 'px',
+          height: state.docHeight + 'px'
+        });
         var blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
         var url = URL.createObjectURL(blob);
         downloadFile(url, fileBaseName() + '.svg');
