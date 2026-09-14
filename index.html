@@ -2415,63 +2415,6 @@
     });
     wrap.innerHTML = html;
 
-    // Specialized Flow Inspector Listeners
-    if (o.isFlowStep){
-      var flowNumInput = document.getElementById('inspFlowNum');
-      var flowTitleInput = document.getElementById('inspFlowTitle');
-      var flowDescInput = document.getElementById('inspFlowDesc');
-      var btnAddNext = document.getElementById('inspBtnAddNext');
-
-      if (flowNumInput) flowNumInput.addEventListener('change', function(e){
-        updateFlowStepCard(o, parseInt(e.target.value, 10) || 1, o.flowTitle, o.flowDesc, o.flowColor);
-      });
-      if (flowTitleInput) flowTitleInput.addEventListener('input', function(e){
-        updateFlowStepCard(o, o.flowNum, e.target.value, o.flowDesc, o.flowColor);
-      });
-      if (flowDescInput) flowDescInput.addEventListener('input', function(e){
-        updateFlowStepCard(o, o.flowNum, o.flowTitle, e.target.value, o.flowColor);
-      });
-      document.querySelectorAll('#inspFlowSwatches .flow-color-chip').forEach(function(chip){
-        chip.addEventListener('click', function(){
-          document.querySelectorAll('#inspFlowSwatches .flow-color-chip').forEach(function(x){ x.classList.remove('active'); });
-          chip.classList.add('active');
-          updateFlowStepCard(o, o.flowNum, o.flowTitle, o.flowDesc, chip.dataset.color);
-        });
-      });
-      if (btnAddNext) btnAddNext.addEventListener('click', function(){ addNextFlowStep(); });
-    }
-
-    if (o.isDecision){
-      var decQ = document.getElementById('inspDecisionQ');
-      var decYes = document.getElementById('inspDecisionYes');
-      var decNo = document.getElementById('inspDecisionNo');
-      if (decQ) decQ.addEventListener('input', function(e){ updateDecisionCard(o, e.target.value, o.yesLabel, o.noLabel, o.decisionColor); });
-      if (decYes) decYes.addEventListener('input', function(e){ updateDecisionCard(o, o.decisionQuestion, e.target.value, o.noLabel, o.decisionColor); });
-      if (decNo) decNo.addEventListener('input', function(e){ updateDecisionCard(o, o.decisionQuestion, o.yesLabel, e.target.value, o.decisionColor); });
-    }
-
-    if (o.isSwimlane){
-      var laneTitleInput = document.getElementById('inspSwimlaneTitle');
-      if (laneTitleInput) laneTitleInput.addEventListener('input', function(e){
-        o.laneTitle = e.target.value;
-        if (o.item(2)) o.item(2).set('text', e.target.value);
-        canvas.requestRenderAll();
-        pushHistory();
-      });
-    }
-
-    if (o.isFlowConnector){
-      var connLabelInput = document.getElementById('inspConnLabel');
-      if (connLabelInput) connLabelInput.addEventListener('input', function(e){
-        o.connectorLabel = e.target.value;
-        if (o.item(2) && o.item(2).type === 'text') {
-          o.item(2).set('text', e.target.value);
-        }
-        canvas.requestRenderAll();
-        pushHistory();
-      });
-    }
-
     var flattenBtn = document.getElementById('btnFlattenLayers');
     if (flattenBtn){
       flattenBtn.addEventListener('click', function(){
@@ -2749,6 +2692,63 @@
 
     function commit(){ canvas.requestRenderAll(); }
     function commitHistory(){ canvas.fire('object:modified', { target: o }); }
+
+    // Specialized Flow Inspector Listeners
+    if (o.isFlowStep){
+      var flowNumInput = document.getElementById('inspFlowNum');
+      var flowTitleInput = document.getElementById('inspFlowTitle');
+      var flowDescInput = document.getElementById('inspFlowDesc');
+      var btnAddNext = document.getElementById('inspBtnAddNext');
+
+      if (flowNumInput) flowNumInput.addEventListener('change', function(e){
+        updateFlowStepCard(o, parseInt(e.target.value, 10) || 1, o.flowTitle, o.flowDesc, o.flowColor);
+      });
+      if (flowTitleInput) flowTitleInput.addEventListener('input', function(e){
+        updateFlowStepCard(o, o.flowNum, e.target.value, o.flowDesc, o.flowColor);
+      });
+      if (flowDescInput) flowDescInput.addEventListener('input', function(e){
+        updateFlowStepCard(o, o.flowNum, o.flowTitle, e.target.value, o.flowColor);
+      });
+      document.querySelectorAll('#inspFlowSwatches .flow-color-chip').forEach(function(chip){
+        chip.addEventListener('click', function(){
+          document.querySelectorAll('#inspFlowSwatches .flow-color-chip').forEach(function(x){ x.classList.remove('active'); });
+          chip.classList.add('active');
+          updateFlowStepCard(o, o.flowNum, o.flowTitle, o.flowDesc, chip.dataset.color);
+        });
+      });
+      if (btnAddNext) btnAddNext.addEventListener('click', function(){ addNextFlowStep(); });
+    }
+
+    if (o.isDecision){
+      var decQ = document.getElementById('inspDecisionQ');
+      var decYes = document.getElementById('inspDecisionYes');
+      var decNo = document.getElementById('inspDecisionNo');
+      if (decQ) decQ.addEventListener('input', function(e){ updateDecisionCard(o, e.target.value, o.yesLabel, o.noLabel, o.decisionColor); });
+      if (decYes) decYes.addEventListener('input', function(e){ updateDecisionCard(o, o.decisionQuestion, e.target.value, o.noLabel, o.decisionColor); });
+      if (decNo) decNo.addEventListener('input', function(e){ updateDecisionCard(o, o.decisionQuestion, o.yesLabel, e.target.value, o.decisionColor); });
+    }
+
+    if (o.isSwimlane){
+      var laneTitleInput = document.getElementById('inspSwimlaneTitle');
+      if (laneTitleInput) laneTitleInput.addEventListener('input', function(e){
+        o.laneTitle = e.target.value;
+        if (o.item && o.item(2)) o.item(2).set('text', e.target.value);
+        canvas.requestRenderAll();
+        pushHistory();
+      });
+    }
+
+    if (o.isFlowConnector){
+      var connLabelInput = document.getElementById('inspConnLabel');
+      if (connLabelInput) connLabelInput.addEventListener('input', function(e){
+        o.connectorLabel = e.target.value;
+        if (o.item && o.item(2) && o.item(2).type === 'text') {
+          o.item(2).set('text', e.target.value);
+        }
+        canvas.requestRenderAll();
+        pushHistory();
+      });
+    }
 
     var propFill = document.getElementById('propFill');
     if (propFill){
