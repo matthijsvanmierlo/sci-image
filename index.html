@@ -1345,13 +1345,20 @@
               <input type="checkbox" id="chkStickyConnectors" checked>
               <span>Sticky connectors (arrows track cards when dragged)</span>
             </label>
+            <label style="display:flex; align-items:center; gap:7px; font-size:11.5px; cursor:pointer; color:#334155;">
+              <input type="checkbox" id="chkAutoExpandFlowHeight" checked>
+              <span>Auto-extend artboard height if steps overflow</span>
+            </label>
           </div>
         </div>
 
         <!-- Pre-built Protocol Pipelines -->
         <div class="flyout-card">
-          <h4>Protocol Workflow Starters</h4>
-          <p class="hint" style="margin-bottom:8px;">Insert editable process pipelines directly onto canvas:</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <h4 style="margin:0;">Protocol Workflow Starters</h4>
+            <span class="badge-soft" id="workflowArtboardFitBadge" style="font-size:10px; color:#0ea5e9;">Fit to Artboard</span>
+          </div>
+          <p class="hint" style="margin-bottom:8px;">Insert editable process pipelines (responsively adapts to your active artboard width):</p>
           <div style="display:flex; flex-direction:column; gap:6px;">
             <button type="button" class="action-btn" id="btnPreset3Step" style="justify-content:flex-start; text-align:left; padding:6px 10px;">
               <div><strong>3-Step Linear Pipeline</strong><div class="hint" style="font-size:10.5px;">Sample Input → Reaction → Readout</div></div>
@@ -1606,6 +1613,35 @@
 <!-- Notification Toast -->
 <div class="toast" id="toastBox" role="status" aria-live="polite">Notification</div>
 
+<!-- Template Insertion Mode Modal -->
+<div class="modal-overlay" id="modalTemplatePrompt" role="dialog" aria-modal="true" aria-labelledby="tmplPromptTitle">
+  <div class="modal-box" style="max-width:440px;">
+    <div class="modal-head">
+      <h3 id="tmplPromptTitle" style="font-size:15px;">Add Protocol Template</h3>
+      <button class="flyout-close" id="btnCloseTmplPrompt" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="padding:16px 20px;">
+      <p id="tmplPromptMsg" style="margin:0 0 14px; font-size:12.5px; color:#334155; line-height:1.5;">
+        Your canvas currently has elements on it. How would you like to add this protocol template?
+      </p>
+      <div style="display:flex; flex-direction:column; gap:9px;">
+        <button type="button" class="btn btn-accent" id="btnTmplInsertActive" style="justify-content:center; padding:9px 14px; font-weight:600;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><path d="M12 5v14M5 12h14"/></svg>
+          Insert into Figure (Preserve Artboard)
+        </button>
+        <button type="button" class="btn" id="btnTmplReplaceClean" style="justify-content:center; padding:8px 14px; border-color:#cbd5e1; color:#475569;">
+          Replace Entire Canvas (Start Fresh)
+        </button>
+        <button type="button" class="action-btn" id="btnTmplCancel" style="justify-content:center; margin-top:2px;">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Help & User Guide Modal -->
 <div class="modal-overlay" id="modalHelp" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
   <div class="modal-box">
@@ -1834,8 +1870,20 @@
     flowDirection: 'horizontal',
     autoConnectFlow: true,
     stickyConnectors: true,
+    autoExpandFlowHeight: true,
+    templateArtboardMode: 'fit', // 'fit' (locks artboard to current dimensions & adapts layout) or 'expand' (resizes artboard to template dimensions)
+    activePresetName: null,
     suppressLiveEvents: false
   };
+
+  function getCanvasBottom(){
+    var maxB = 0;
+    canvas.getObjects().forEach(function(o){
+      var b = (o.top || 0) + ((o.height || 0) * (o.scaleY || 1));
+      if (b > maxB) maxB = b;
+    });
+    return maxB;
+  }
 
   var CANVAS_PRESETS = {
     single: { w: 1004, h: 750, label: 'Single Column (85 mm @ 300 DPI)' },
@@ -1854,9 +1902,10 @@
     return null;
   }
 
-  function setCanvasSize(w, h){
+  function setCanvasSize(w, h, presetName){
     state.docWidth = w;
     state.docHeight = h;
+    state.activePresetName = presetName !== undefined ? presetName : null;
     applyZoom(state.zoom);
     refreshStatus();
   }
@@ -1936,7 +1985,7 @@
 
   function refreshStatus(){
     var sizeEl = document.getElementById('statSize');
-    if (sizeEl) sizeEl.textContent = (state.docWidth || canvas.getWidth()) + ' × ' + (state.docHeight || canvas.getHeight()) + ' px';
+    if (sizeEl) sizeEl.textContent = state.docWidth + ' × ' + state.docHeight + ' px';
     var n = canvas.getObjects().length;
     var countEl = document.getElementById('statCount');
     if (countEl) countEl.textContent = n + (n === 1 ? ' object' : ' objects');
@@ -1945,17 +1994,19 @@
 
     var bPreset = document.getElementById('artboardPresetName');
     if (bPreset){
-      var pName = 'Custom Artboard';
-      for (var k in CANVAS_PRESETS){
-        if (CANVAS_PRESETS[k].w === state.docWidth && CANVAS_PRESETS[k].h === state.docHeight){
-          pName = CANVAS_PRESETS[k].label.split('(')[0].trim();
-          break;
+      var pName = state.activePresetName || 'Custom Artboard';
+      if (!state.activePresetName){
+        for (var k in CANVAS_PRESETS){
+          if (CANVAS_PRESETS[k].w === state.docWidth && CANVAS_PRESETS[k].h === state.docHeight){
+            pName = CANVAS_PRESETS[k].label.split('(')[0].trim();
+            break;
+          }
         }
       }
       bPreset.textContent = pName;
     }
     var bDims = document.getElementById('artboardDims');
-    if (bDims) bDims.textContent = (state.docWidth || canvas.getWidth()) + ' × ' + (state.docHeight || canvas.getHeight()) + ' px';
+    if (bDims) bDims.textContent = state.docWidth + ' × ' + state.docHeight + ' px';
     var bBadge = document.getElementById('artboardScaleBadge');
     if (bBadge) bBadge.textContent = Math.round((state.zoom || 1) * 100) + '%';
   }
@@ -2702,7 +2753,7 @@
   function renderCanvasSettings(wrap){
     var opts = Object.keys(CANVAS_PRESETS).map(function(k){
       var p = CANVAS_PRESETS[k];
-      var isCurrent = (canvas.getWidth() === p.w && canvas.getHeight() === p.h);
+      var isCurrent = (state.docWidth === p.w && state.docHeight === p.h);
       return '<option value="'+k+'"'+(isCurrent?' selected':'')+'>'+p.label+' ('+p.w+'×'+p.h+')</option>';
     }).join('');
 
@@ -2710,8 +2761,8 @@
       '<div class="field"><label>Figure Dimensions & Presets</label>'
       + '<select id="presetSelect">'+opts+'<option value="custom">Custom Dimensions…</option></select></div>'
       + '<div class="field" id="customSizeField" style="display:none"><div class="row2">'
-      + '<input class="num-input" type="number" id="customW" placeholder="Width px" value="'+canvas.getWidth()+'" min="200" max="6000">'
-      + '<input class="num-input" type="number" id="customH" placeholder="Height px" value="'+canvas.getHeight()+'" min="200" max="6000">'
+      + '<input class="num-input" type="number" id="customW" placeholder="Width px" value="'+state.docWidth+'" min="200" max="6000">'
+      + '<input class="num-input" type="number" id="customH" placeholder="Height px" value="'+state.docHeight+'" min="200" max="6000">'
       + '</div><button class="btn" id="btnApplyCustomSize" style="width:100%; margin-top:6px; justify-content:center;">Apply Custom Size</button></div>'
       + '<div class="field"><label>Canvas Background</label>'
       + '<div class="segmented" id="bgSeg">'
@@ -2741,8 +2792,8 @@
     var btnApplyCustom = document.getElementById('btnApplyCustomSize');
     if (btnApplyCustom){
       btnApplyCustom.addEventListener('click', function(){
-        var w = parseInt(document.getElementById('customW').value, 10) || canvas.getWidth();
-        var h = parseInt(document.getElementById('customH').value, 10) || canvas.getHeight();
+        var w = parseInt(document.getElementById('customW').value, 10) || state.docWidth;
+        var h = parseInt(document.getElementById('customH').value, 10) || state.docHeight;
         setCanvasSize(w, h);
         showToast('Canvas resized: ' + w + '×' + h + ' px');
       });
@@ -3107,7 +3158,7 @@
   }
 
   function alignObject(o, mode){
-    var cw = canvas.getWidth(), ch = canvas.getHeight();
+    var cw = state.docWidth, ch = state.docHeight;
     var b = o.getBoundingRect(true);
     var dx = 0, dy = 0;
     if (mode === 'alignLeft') dx = -b.left;
@@ -3369,8 +3420,8 @@
     var orientation = options.orientation || 'horizontal';
     var startX = options.startX !== undefined ? options.startX : 50;
     var startY = options.startY !== undefined ? options.startY : 120;
-    var totalW = options.width || (canvas.getWidth() - 100);
-    var totalH = options.height || (canvas.getHeight() - 160);
+    var totalW = options.width || (state.docWidth - 100);
+    var totalH = options.height || (state.docHeight - 160);
     var count = lanes.length;
 
     var colors = ['#0ea5e9', '#0d9488', '#6366f1', '#f59e0b'];
@@ -3470,7 +3521,13 @@
 
     var x1, y1, x2, y2;
 
-    if (Math.abs(dx) >= Math.abs(dy) * 0.7){
+    if (dy > 80 && dx < -80){
+      // Flow wraps down to a subsequent row on the left
+      x1 = s.cx;
+      y1 = s.bottom + 4;
+      x2 = t.cx;
+      y2 = t.top - 4;
+    } else if (Math.abs(dx) >= Math.abs(dy) * 0.7){
       // Horizontal flow dominant
       if (dx > 0){
         // Target is to the right
@@ -3565,7 +3622,7 @@
       if (dir === 'horizontal'){
         nextX = lastCard.left + cardW + gap;
         nextY = lastCard.top;
-        if (nextX + cardW > canvas.getWidth() - 40){
+        if (nextX + cardW > state.docWidth - 40){
           nextX = 60;
           nextY = lastCard.top + cardH + 70;
         }
@@ -3573,8 +3630,10 @@
         nextX = lastCard.left;
         nextY = lastCard.top + cardH + gap;
       }
-      if (nextY + cardH > canvas.getHeight() - 40){
-        setCanvasSize(canvas.getWidth(), nextY + cardH + 80);
+      if (nextY + cardH > state.docHeight - 40){
+        if (state.autoExpandFlowHeight !== false){
+          setCanvasSize(state.docWidth, nextY + cardH + 80);
+        }
       }
     }
 
@@ -3680,10 +3739,9 @@
     var btnAddDec = document.getElementById('btnFlyoutAddDecision');
     if (btnAddDec) btnAddDec.addEventListener('click', function(e){
       e.preventDefault();
-      var center = canvas.getCenter();
       var dec = createDecisionShape({
-        x: snapVal(center.left - 100),
-        y: snapVal(center.top - 70),
+        x: snapVal(state.docWidth / 2 - 100),
+        y: snapVal(state.docHeight / 2 - 70),
         question: 'Confluency >= 80%?',
         color: state.flowColor || '#d97706'
       });
@@ -3732,12 +3790,14 @@
     if (chkAuto) chkAuto.addEventListener('change', function(e){ state.autoConnectFlow = e.target.checked; });
     var chkSticky = document.getElementById('chkStickyConnectors');
     if (chkSticky) chkSticky.addEventListener('change', function(e){ state.stickyConnectors = e.target.checked; });
+    var chkExpand = document.getElementById('chkAutoExpandFlowHeight');
+    if (chkExpand) chkExpand.addEventListener('change', function(e){ state.autoExpandFlowHeight = e.target.checked; });
 
     // Presets
     var p3 = document.getElementById('btnPreset3Step');
     if (p3) p3.addEventListener('click', function(){
-      buildFlowProtocol({
-        name: '3-Step Linear Flow',
+      promptOrLoadProtocol({
+        name: '3-Step Linear Pipeline',
         width: 1200, height: 500,
         title: '3-Stage Linear Process Workflow',
         steps: [
@@ -3749,42 +3809,34 @@
     });
 
     var p4 = document.getElementById('btnPreset4Step');
-    if (p4) p4.addEventListener('click', function(){ loadProtocolWorkflowTemplate(); });
+    if (p4) p4.addEventListener('click', function(){
+      promptOrLoadProtocol(PROTOCOL_TEMPLATES.assay_pipeline);
+    });
 
     var pDec = document.getElementById('btnPresetDecision');
     if (pDec) pDec.addEventListener('click', function(){
-      buildFlowProtocol(PROTOCOL_TEMPLATES.cell_passage);
+      promptOrLoadProtocol(PROTOCOL_TEMPLATES.cell_passage);
     });
 
     var p2Day = document.getElementById('btnPreset2Day');
     if (p2Day) p2Day.addEventListener('click', function(){
-      setCanvasSize(1400, 750);
-      canvas.clear();
-      canvas.backgroundColor = '#ffffff';
-      var title = new fabric.IText('2-Day Laboratory Experimental Workflow', {
-        left: 60, top: 40, fontSize: 24, fontWeight: 700, fontFamily: 'IBM Plex Sans', fill: '#0f172a'
+      promptOrLoadProtocol({
+        name: '2-Day Multi-Lane Protocol',
+        width: 1400, height: 750,
+        title: '2-Day Laboratory Experimental Workflow',
+        swimlanes: ['Day 1: Cell Seeding & Transfection', 'Day 2: Lysis, Staining & Imaging'],
+        steps: [
+          { num: 1, title: 'Day 1: Cell Seeding', desc: 'Seed 2.5x10^5 cells per well in 6-well plate', color: '#0ea5e9', x: 80, y: 170 },
+          { num: 2, title: 'Day 1: Transfection', desc: 'Deliver CRISPR/Cas9 plasmid using Lipofectamine', color: '#0d9488', x: 440, y: 170 },
+          { num: 3, title: 'Day 2: Harvesting', desc: 'Wash with DPBS, lyse in RIPA buffer with protease inhibitors', color: '#6366f1', x: 80, y: 460 },
+          { num: 4, title: 'Day 2: Detection', desc: 'Run SDS-PAGE & analyze fluorescence microscopy', color: '#059669', x: 440, y: 460 }
+        ],
+        connectors: [
+          { from: '1', to: '2', color: '#0ea5e9' },
+          { from: '2', to: '3', color: '#64748b', label: 'Overnight (16h)' },
+          { from: '3', to: '4', color: '#059669' }
+        ]
       });
-      canvas.add(title);
-      createSwimlanes({
-        lanes: ['Day 1: Cell Seeding & Transfection', 'Day 2: Lysis, Staining & Imaging'],
-        startY: 100,
-        height: 600,
-        orientation: 'horizontal'
-      });
-      var s1 = createFlowStep({ num: 1, title: 'Day 1: Cell Seeding', desc: 'Seed 2.5x10^5 cells per well in 6-well plate', color: '#0ea5e9', x: 80, y: 170 });
-      var s2 = createFlowStep({ num: 2, title: 'Day 1: Transfection', desc: 'Deliver CRISPR/Cas9 plasmid using Lipofectamine', color: '#0d9488', x: 440, y: 170 });
-      var s3 = createFlowStep({ num: 3, title: 'Day 2: Harvesting', desc: 'Wash with DPBS, lyse in RIPA buffer with protease inhibitors', color: '#6366f1', x: 80, y: 460 });
-      var s4 = createFlowStep({ num: 4, title: 'Day 2: Detection', desc: 'Run SDS-PAGE & analyze fluorescence microscopy', color: '#059669', x: 440, y: 460 });
-      canvas.add(s1, s2, s3, s4);
-      createFlowConnector(s1, s2, '#0ea5e9');
-      createFlowConnector(s2, s3, '#64748b', 'Overnight (16h)');
-      createFlowConnector(s3, s4, '#6366f1');
-      canvas.renderAll();
-      pushHistory();
-      refreshLayers();
-      toggleEmptyHint();
-      refreshStatus();
-      showToast('Loaded 2-Day Swimlane Workflow');
     });
   }
 
@@ -3914,34 +3966,139 @@
     }
   };
 
-  function buildFlowProtocol(spec){
+  var pendingTemplateAction = null;
+
+  function promptOrLoadProtocol(spec, isInsert){
+    if (isInsert){
+      buildFlowProtocol(spec, { mode: 'fit', insert: true });
+      return;
+    }
+    if (canvas.getObjects().length > 0){
+      pendingTemplateAction = function(doInsert){
+        buildFlowProtocol(spec, { mode: doInsert ? 'fit' : (state.templateArtboardMode || 'fit'), insert: doInsert });
+      };
+      openTemplatePromptModal(spec.name || 'Protocol Template');
+    } else {
+      buildFlowProtocol(spec, { mode: state.templateArtboardMode || 'fit', insert: false });
+    }
+  }
+
+  function promptOrLoadBlueprint(bp, isInsert){
+    if (isInsert){
+      if (bp && bp.fn) bp.fn({ mode: 'fit', insert: true });
+      return;
+    }
+    if (canvas.getObjects().length > 0){
+      pendingTemplateAction = function(doInsert){
+        if (bp && bp.fn) bp.fn({ mode: doInsert ? 'fit' : (state.templateArtboardMode || 'fit'), insert: doInsert });
+      };
+      openTemplatePromptModal(bp.title || 'Publication Blueprint');
+    } else {
+      if (bp && bp.fn) bp.fn({ mode: state.templateArtboardMode || 'fit', insert: false });
+    }
+  }
+
+  function openTemplatePromptModal(title){
+    var pModal = document.getElementById('modalTemplatePrompt');
+    var pTitle = document.getElementById('tmplPromptTitle');
+    var pMsg = document.getElementById('tmplPromptMsg');
+    if (pTitle) pTitle.textContent = 'Add ' + title;
+    if (pMsg){
+      var artName = state.activePresetName || 'Custom Artboard';
+      for (var k in CANVAS_PRESETS){
+        if (CANVAS_PRESETS[k].w === state.docWidth && CANVAS_PRESETS[k].h === state.docHeight){
+          artName = CANVAS_PRESETS[k].label.split('(')[0].trim();
+          break;
+        }
+      }
+      pMsg.innerHTML = 'Your active artboard (<strong>' + artName + ' — ' + state.docWidth + ' × ' + state.docHeight + ' px</strong>) contains existing figure elements. How would you like to add this template?';
+    }
+    if (pModal) pModal.classList.add('open');
+  }
+
+  function initTemplatePromptModal(){
+    var pModal = document.getElementById('modalTemplatePrompt');
+    if (!pModal) return;
+    var close = function(){ pModal.classList.remove('open'); pendingTemplateAction = null; };
+    var btnClose = document.getElementById('btnCloseTmplPrompt');
+    if (btnClose) btnClose.addEventListener('click', close);
+    var btnCancel = document.getElementById('btnTmplCancel');
+    if (btnCancel) btnCancel.addEventListener('click', close);
+    var btnInsert = document.getElementById('btnTmplInsertActive');
+    if (btnInsert) btnInsert.addEventListener('click', function(){
+      pModal.classList.remove('open');
+      if (pendingTemplateAction){
+        var act = pendingTemplateAction;
+        pendingTemplateAction = null;
+        act(true);
+      }
+    });
+    var btnReplace = document.getElementById('btnTmplReplaceClean');
+    if (btnReplace) btnReplace.addEventListener('click', function(){
+      pModal.classList.remove('open');
+      if (pendingTemplateAction){
+        var act = pendingTemplateAction;
+        pendingTemplateAction = null;
+        act(false);
+      }
+    });
+    pModal.addEventListener('click', function(e){
+      if (e.target === pModal) close();
+    });
+  }
+
+  function buildFlowProtocol(spec, options){
     if (!spec) return;
-    setCanvasSize(spec.width || 1600, spec.height || 650);
-    canvas.clear();
-    canvas.backgroundColor = '#ffffff';
+    options = options || {};
+    var mode = options.mode || state.templateArtboardMode || 'fit';
+    var insert = !!options.insert;
+
+    var targetW = state.docWidth || 1004;
+    var targetH = state.docHeight || 750;
+
+    if (mode === 'expand'){
+      targetW = spec.width || 1600;
+      targetH = spec.height || 650;
+      setCanvasSize(targetW, targetH, 'Template: ' + (spec.name || 'Protocol'));
+    }
+
+    if (!insert){
+      canvas.clear();
+      canvas.backgroundColor = '#ffffff';
+    }
+
+    var startY = 40;
+    if (insert){
+      var b = getCanvasBottom();
+      startY = b > 0 ? (b + 60) : 40;
+    }
+
+    var isCompact = (mode === 'fit' && targetW < (spec.width || 1600));
 
     if (spec.title){
       var title = new fabric.IText(spec.title, {
-        left: 60, top: 40, fontSize: 24, fontWeight: 700, fontFamily: 'IBM Plex Sans', fill: '#0f172a',
+        left: 50, top: startY, fontSize: isCompact ? 20 : 24, fontWeight: 700, fontFamily: 'IBM Plex Sans', fill: '#0f172a',
         name: 'Header Title'
       });
       canvas.add(title);
     }
     if (spec.subtitle){
       var sub = new fabric.Text(spec.subtitle, {
-        left: 60, top: 76, fontSize: 13, fontWeight: 500, fontFamily: 'IBM Plex Sans', fill: '#64748b',
+        left: 50, top: startY + (isCompact ? 30 : 36), fontSize: isCompact ? 12 : 13, fontWeight: 500, fontFamily: 'IBM Plex Sans', fill: '#64748b',
         name: 'Header Subtitle'
       });
       canvas.add(sub);
     }
 
+    var contentStartY = startY + (spec.title ? (spec.subtitle ? 70 : 45) : 0);
+
     if (spec.swimlanes && spec.swimlanes.length){
       createSwimlanes({
         lanes: spec.swimlanes,
-        startY: 110,
-        startX: 50,
-        width: (spec.width || 1600) - 100,
-        height: (spec.height || 650) - 160,
+        startY: contentStartY + 10,
+        startX: 40,
+        width: targetW - 80,
+        height: Math.max(targetH - contentStartY - 30, 480),
         orientation: spec.swimlaneOrientation || 'horizontal'
       });
     }
@@ -3949,7 +4106,89 @@
     var stepMap = {};
     var prevObj = null;
 
-    (spec.steps || []).forEach(function(s, idx){
+    var layoutSteps = [];
+    var stepsList = spec.steps || [];
+
+    if (!isCompact){
+      var offsetX = Math.max(0, Math.floor((targetW - (spec.width || 1600)) / 2));
+      var offsetY = contentStartY - 110;
+      stepsList.forEach(function(s){
+        layoutSteps.push({
+          raw: s,
+          x: (s.x || 60) + offsetX,
+          y: (s.y || 150) + offsetY,
+          w: s.w,
+          h: s.h
+        });
+      });
+    } else {
+      var availW = targetW - 80;
+      var hasDecision = stepsList.some(function(s){ return s.type === 'decision'; });
+
+      if (!hasDecision){
+        var cardW = Math.min(270, Math.floor((availW - 30) / 2));
+        var gap = 30;
+        var cols = Math.max(1, Math.floor((availW + gap) / (cardW + gap)));
+        var leftMargin = Math.max(40, Math.floor((targetW - (cols * cardW + (cols - 1) * gap)) / 2));
+        stepsList.forEach(function(s, idx){
+          var col = idx % cols;
+          var row = Math.floor(idx / cols);
+          layoutSteps.push({
+            raw: s,
+            x: leftMargin + col * (cardW + gap),
+            y: contentStartY + 20 + row * 240,
+            w: cardW,
+            h: s.h && s.h > 200 ? 210 : (s.h || 170)
+          });
+        });
+      } else {
+        var row1 = [];
+        var row2 = [];
+        stepsList.forEach(function(s){
+          if ((s.y || 150) < 300) row1.push(s);
+          else row2.push(s);
+        });
+
+        if (availW < 1200 && row1.length > 3){
+          var extra = row1.splice(3);
+          row2 = extra.concat(row2);
+        }
+
+        var placeRow = function(items, yBase){
+          var count = items.length;
+          if (!count) return;
+          var cardW = Math.min(270, Math.floor((availW - (count - 1) * 25) / count));
+          var gap = Math.min(30, Math.max(16, Math.floor((availW - count * cardW) / Math.max(1, count - 1))));
+          var totalRowW = count * cardW + (count - 1) * gap;
+          var leftStart = Math.max(40, Math.floor((targetW - totalRowW) / 2));
+          items.forEach(function(s, idx){
+            layoutSteps.push({
+              raw: s,
+              x: leftStart + idx * (cardW + gap),
+              y: yBase,
+              w: s.type === 'decision' ? Math.min(cardW, 200) : cardW,
+              h: s.h || 170
+            });
+          });
+        };
+
+        placeRow(row1, contentStartY + 20);
+        placeRow(row2, contentStartY + 250);
+      }
+    }
+
+    var maxBottom = contentStartY;
+    layoutSteps.forEach(function(ls){
+      var bottom = ls.y + (ls.h || 170);
+      if (bottom > maxBottom) maxBottom = bottom;
+    });
+
+    if (maxBottom + 50 > targetH){
+      setCanvasSize(targetW, maxBottom + 60, state.activePresetName);
+    }
+
+    layoutSteps.forEach(function(ls, idx){
+      var s = ls.raw;
       var obj;
       if (s.type === 'decision'){
         obj = createDecisionShape({
@@ -3957,10 +4196,10 @@
           yesLabel: s.yesLabel || 'Yes / Pass',
           noLabel: s.noLabel || 'No / Fail',
           color: s.color || '#d97706',
-          x: s.x,
-          y: s.y,
-          w: s.w || 200,
-          h: s.h || 140
+          x: ls.x,
+          y: ls.y,
+          w: ls.w || 200,
+          h: ls.h || 140
         });
         canvas.add(obj);
       } else {
@@ -3969,10 +4208,10 @@
           title: s.title,
           desc: s.desc,
           color: s.color || '#0ea5e9',
-          x: s.x,
-          y: s.y,
-          w: s.w || 280,
-          h: s.h || 170
+          x: ls.x,
+          y: ls.y,
+          w: ls.w || 280,
+          h: ls.h || 170
         });
         canvas.add(obj);
       }
@@ -3983,11 +4222,11 @@
       if (s.iconId){
         var asset = ASSET_CATALOG.find(function(a){ return a.id === s.iconId; });
         if (asset){
-          fabric.loadSVGFromString(svgWrap(asset.svg), (function(cardObj, assetName){
+          fabric.loadSVGFromString(svgWrap(asset.svg), (function(cardObj, assetName, cardW){
             return function(objects, options){
               var iconGroup = fabric.util.groupSVGElements(objects, options);
               iconGroup.set({
-                left: cardObj.left + (cardObj.width || 280) - 34,
+                left: cardObj.left + (cardW || 280) - 34,
                 top: cardObj.top + 32,
                 originX: 'center', originY: 'center',
                 scaleX: 0.72, scaleY: 0.72,
@@ -3997,7 +4236,7 @@
               canvas.add(iconGroup);
               canvas.requestRenderAll();
             };
-          })(obj, asset.name));
+          })(obj, asset.name, ls.w));
         }
       }
 
@@ -4025,13 +4264,14 @@
     zoomFit();
     setTool('select');
     closeAllFlyouts();
-    showToast('Loaded ' + (spec.name || 'Protocol Template') + ' — Fitted to screen');
+    var modeDesc = mode === 'fit' ? ('Adapted to ' + state.docWidth + '×' + state.docHeight + ' px Artboard') : 'Artboard expanded to ' + spec.width + '×' + spec.height + ' px';
+    showToast('Loaded ' + (spec.name || 'Protocol Template') + ' — ' + modeDesc);
   }
 
   var BLUEPRINT_TEMPLATES = [
-    { id: 'tmplAbstract', title: 'Graphical Abstract Blueprint', badge: 'Publication', color: 'btn-accent', desc: '3-panel horizontal layout (Context -> Mechanism -> Outcome) with panels A, B, C.', fn: function(){ loadGraphicalAbstractTemplate(); } },
-    { id: 'tmplCascade', title: 'Cellular Signaling Cascade', badge: 'Pathway', color: 'btn-teal', desc: 'Bilayer membrane, receptor dimer, kinase cascade, and transcription factor nuclear entry.', fn: function(){ loadSignalingCascadeTemplate(); } },
-    { id: 'tmplWestern', title: 'Western Blot / SDS-PAGE Gel', badge: 'Gel', color: 'btn', desc: 'Protein molecular weight ladder (kDa) with sample lanes and GAPDH loading controls.', fn: function(){ loadWesternBlotTemplate(); } }
+    { id: 'tmplAbstract', title: 'Graphical Abstract Blueprint', badge: 'Publication', color: 'btn-accent', desc: '3-panel horizontal layout (Context -> Mechanism -> Outcome) with panels A, B, C.', fn: function(opts){ loadGraphicalAbstractTemplate(opts); } },
+    { id: 'tmplCascade', title: 'Cellular Signaling Cascade', badge: 'Pathway', color: 'btn-teal', desc: 'Bilayer membrane, receptor dimer, kinase cascade, and transcription factor nuclear entry.', fn: function(opts){ loadSignalingCascadeTemplate(opts); } },
+    { id: 'tmplWestern', title: 'Western Blot / SDS-PAGE Gel', badge: 'Gel', color: 'btn', desc: 'Protein molecular weight ladder (kDa) with sample lanes and GAPDH loading controls.', fn: function(opts){ loadWesternBlotTemplate(opts); } }
   ];
 
   var PROTOCOL_LIST = [
@@ -4056,13 +4296,43 @@
       return b.title.toLowerCase().includes(filterText) || b.desc.toLowerCase().includes(filterText) || b.badge.toLowerCase().includes(filterText);
     });
 
+    var currentPresetName = 'Custom Artboard';
+    for (var k in CANVAS_PRESETS){
+      if (CANVAS_PRESETS[k].w === state.docWidth && CANVAS_PRESETS[k].h === state.docHeight){
+        currentPresetName = CANVAS_PRESETS[k].label.split('(')[0].trim();
+        break;
+      }
+    }
+
+    var isFitMode = (state.templateArtboardMode !== 'expand');
+
+    var artboardControlHtml =
+      '<div class="flyout-card" style="margin-bottom:12px; background:rgba(14,165,233,0.06); border:1px solid rgba(14,165,233,0.22); border-radius:6px; padding:10px;">'
+      + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">'
+      + '<strong style="font-size:11px; color:#0369a1; text-transform:uppercase; letter-spacing:0.4px;">Artboard Dimensions on Load</strong>'
+      + '<span class="badge-soft ' + (isFitMode ? 'emerald' : 'amber') + '" style="font-size:10px;">' + (isFitMode ? ('Locked (' + state.docWidth + '×' + state.docHeight + ')') : 'Expand Canvas') + '</span>'
+      + '</div>'
+      + '<div class="segmented tmpl-artboard-seg" style="margin-bottom:6px;">'
+      + '<button type="button" data-tmpl-mode="fit" class="' + (isFitMode ? 'active' : '') + '">Lock Artboard (' + currentPresetName + ')</button>'
+      + '<button type="button" data-tmpl-mode="expand" class="' + (!isFitMode ? 'active' : '') + '">Expand to Template</button>'
+      + '</div>'
+      + '<p class="hint" style="margin:0; font-size:10.5px; line-height:1.4;">'
+      + (isFitMode
+        ? '<strong>Lock Artboard:</strong> Keeps your figure dimensions intact (' + state.docWidth + '×' + state.docHeight + ' px); cards wrap neatly so width never shifts.'
+        : '<strong>Expand to Template:</strong> Changes artboard dimensions to match the template width (up to 1800 px).')
+      + '</p>'
+      + '</div>';
+
     var protocolsHtml = filteredProtocols.map(function(p){
       return '<div class="flyout-card" style="margin-bottom:10px;">'
         + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">'
         + '<h4 style="margin:0;">' + p.tmpl.name + '</h4>'
         + '<span class="badge-soft ' + p.tmpl.badgeColor + '">' + p.tmpl.badge + '</span></div>'
         + '<p class="hint" style="margin-bottom:8px;">' + p.desc + '</p>'
-        + '<button class="btn btn-sm" data-load-proto="' + p.id + '" style="width:100%; justify-content:center;">Load Protocol</button>'
+        + '<div style="display:flex; gap:6px;">'
+        + '<button class="btn btn-sm btn-accent" data-load-proto="' + p.id + '" style="flex:1; justify-content:center;">Load Protocol</button>'
+        + '<button class="btn btn-sm" data-insert-proto="' + p.id + '" title="Insert into current artboard without replacing" style="padding:0 9px; font-weight:600; color:#0ea5e9;">+ Insert</button>'
+        + '</div>'
         + '</div>';
     }).join('');
 
@@ -4072,19 +4342,23 @@
         + '<h4 style="margin:0;">' + b.title + '</h4>'
         + '<span class="badge-soft">' + b.badge + '</span></div>'
         + '<p class="hint" style="margin-bottom:8px;">' + b.desc + '</p>'
-        + '<button class="btn ' + b.color + '" data-load-blueprint="' + b.id + '" style="width:100%; justify-content:center;">Load Blueprint</button>'
+        + '<div style="display:flex; gap:6px;">'
+        + '<button class="btn ' + b.color + '" data-load-blueprint="' + b.id + '" style="flex:1; justify-content:center;">Load Blueprint</button>'
+        + '<button class="btn btn-sm" data-insert-blueprint="' + b.id + '" title="Insert into current artboard without replacing" style="padding:0 9px; font-weight:600; color:#0ea5e9;">+ Insert</button>'
+        + '</div>'
         + '</div>';
     }).join('');
 
     var contentHtml =
-      '<div style="font-size:11.5px; color:#64748b; margin-bottom:12px; line-height:1.5;">'
-      + 'Data-driven lab workflows & publication blueprints. Loading automatically fits your canvas.'
+      artboardControlHtml
+      + '<div style="font-size:11.5px; color:#64748b; margin-bottom:12px; line-height:1.5;">'
+      + 'Data-driven lab workflows & publication blueprints. Choose to fit your locked artboard or expand.'
       + '</div>'
       + (filteredProtocols.length ? '<div style="font-size:11px; font-weight:700; text-transform:uppercase; color:#0ea5e9; margin-bottom:8px; letter-spacing:0.5px;">Lab Procedures & Workflows</div>' + protocolsHtml : '')
       + (filteredBlueprints.length ? '<div style="font-size:11px; font-weight:700; text-transform:uppercase; color:#0ea5e9; margin:14px 0 8px; letter-spacing:0.5px;">Publication Blueprints</div>' + blueprintsHtml : '');
 
     if (!filteredProtocols.length && !filteredBlueprints.length){
-      contentHtml = '<div style="text-align:center; padding:30px 10px; color:#94a3b8; font-size:12px;">No templates found matching "' + escapeHtml(filterText) + '".</div>';
+      contentHtml = artboardControlHtml + '<div style="text-align:center; padding:30px 10px; color:#94a3b8; font-size:12px;">No templates found matching "' + escapeHtml(filterText) + '".</div>';
     }
 
     ['templatesListContainer', 'panel-templates'].forEach(function(cid){
@@ -4094,14 +4368,33 @@
       el.querySelectorAll('[data-load-proto]').forEach(function(btn){
         btn.addEventListener('click', function(){
           var pid = btn.dataset.loadProto;
-          if (PROTOCOL_TEMPLATES[pid]) buildFlowProtocol(PROTOCOL_TEMPLATES[pid]);
+          if (PROTOCOL_TEMPLATES[pid]) promptOrLoadProtocol(PROTOCOL_TEMPLATES[pid], false);
+        });
+      });
+      el.querySelectorAll('[data-insert-proto]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var pid = btn.dataset.insertProto;
+          if (PROTOCOL_TEMPLATES[pid]) promptOrLoadProtocol(PROTOCOL_TEMPLATES[pid], true);
         });
       });
       el.querySelectorAll('[data-load-blueprint]').forEach(function(btn){
         btn.addEventListener('click', function(){
           var bid = btn.dataset.loadBlueprint;
           var bp = BLUEPRINT_TEMPLATES.find(function(x){ return x.id === bid; });
-          if (bp && bp.fn) bp.fn();
+          if (bp) promptOrLoadBlueprint(bp, false);
+        });
+      });
+      el.querySelectorAll('[data-insert-blueprint]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var bid = btn.dataset.insertBlueprint;
+          var bp = BLUEPRINT_TEMPLATES.find(function(x){ return x.id === bid; });
+          if (bp) promptOrLoadBlueprint(bp, true);
+        });
+      });
+      el.querySelectorAll('.tmpl-artboard-seg button').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          state.templateArtboardMode = btn.dataset.tmplMode;
+          renderTemplatesUI(filterText);
         });
       });
     });
@@ -4119,13 +4412,13 @@
   }
 
   var qPcr = document.getElementById('quickTmplPcr');
-  if (qPcr) qPcr.addEventListener('click', function(){ buildFlowProtocol(PROTOCOL_TEMPLATES.pcr_amplification); });
+  if (qPcr) qPcr.addEventListener('click', function(){ promptOrLoadProtocol(PROTOCOL_TEMPLATES.pcr_amplification, false); });
   var qAbs = document.getElementById('quickTmplAbstract');
-  if (qAbs) qAbs.addEventListener('click', loadGraphicalAbstractTemplate);
+  if (qAbs) qAbs.addEventListener('click', function(){ promptOrLoadBlueprint(BLUEPRINT_TEMPLATES[0], false); });
   var qCul = document.getElementById('quickTmplCulture');
-  if (qCul) qCul.addEventListener('click', function(){ buildFlowProtocol(PROTOCOL_TEMPLATES.cell_passage); });
+  if (qCul) qCul.addEventListener('click', function(){ promptOrLoadProtocol(PROTOCOL_TEMPLATES.cell_passage, false); });
   var qWst = document.getElementById('quickTmplWestern');
-  if (qWst) qWst.addEventListener('click', loadWesternBlotTemplate);
+  if (qWst) qWst.addEventListener('click', function(){ promptOrLoadBlueprint(BLUEPRINT_TEMPLATES[2], false); });
   var qBrw = document.getElementById('quickTmplBrowse');
   if (qBrw) qBrw.addEventListener('click', function(){
     setTool('select', true);
@@ -4137,23 +4430,45 @@
     renderTemplatesUI();
   });
 
-  function loadGraphicalAbstractTemplate(){
-    setCanvasSize(1500, 750);
-    canvas.clear();
-    canvas.backgroundColor = '#ffffff';
+  function loadGraphicalAbstractTemplate(opts){
+    opts = opts || {};
+    var mode = opts.mode || state.templateArtboardMode || 'fit';
+    var insert = !!opts.insert;
+
+    if (mode === 'expand'){
+      setCanvasSize(1500, 750, 'Template: Graphical Abstract');
+    }
+    if (!insert){
+      canvas.clear();
+      canvas.backgroundColor = '#ffffff';
+    }
+
+    var startY = 40;
+    if (insert){
+      var b = getCanvasBottom();
+      startY = b > 0 ? (b + 60) : 40;
+    }
+
+    var targetW = state.docWidth;
+    var targetH = state.docHeight;
+    var isCompact = (mode === 'fit' && targetW < 1500);
 
     // Title
     var title = new fabric.IText('Graphical Abstract: Mechanism of Target Action', {
-      left: 60, top: 40, fontSize: 26, fontWeight: 700, fontFamily: 'IBM Plex Sans', fill: '#0f172a', name: 'Header Title'
+      left: 50, top: startY, fontSize: isCompact ? 20 : 26, fontWeight: 700, fontFamily: 'IBM Plex Sans', fill: '#0f172a', name: 'Header Title'
     });
     canvas.add(title);
 
     // 3 Panel boxes
-    var panelW = 420, panelH = 560, topY = 110;
+    var topY = startY + (isCompact ? 60 : 70);
+    var panelW = isCompact ? Math.max(240, Math.floor((targetW - 100 - 40) / 3)) : 420;
+    var gap = isCompact ? 20 : 60;
+    var panelH = isCompact ? Math.min(560, Math.max(340, targetH - topY - 50)) : 560;
+
     var panels = [
-      { letter: 'A', name: '1. Biological Context / Disease Model', x: 60, color: '#0ea5e9' },
-      { letter: 'B', name: '2. Molecular Intervention & Binding', x: 540, color: '#0d9488' },
-      { letter: 'C', name: '3. Downstream Cellular Response', x: 1020, color: '#f97316' }
+      { letter: 'A', name: '1. Biological Context / Model', x: 50, color: '#0ea5e9' },
+      { letter: 'B', name: '2. Molecular Intervention', x: 50 + panelW + gap, color: '#0d9488' },
+      { letter: 'C', name: '3. Downstream Response', x: 50 + (panelW + gap) * 2, color: '#f97316' }
     ];
 
     panels.forEach(function(p){
@@ -4169,23 +4484,28 @@
         left: p.x + 16, top: topY + 16, fontSize: 16, fontWeight: 700, fill: '#ffffff', originX: 'center', originY: 'center'
       });
       var header = new fabric.IText(p.name, {
-        left: p.x + 42, top: topY + 6, fontSize: 14, fontWeight: 600, fontFamily: 'IBM Plex Sans', fill: '#334155'
+        left: p.x + 42, top: topY + 6, fontSize: isCompact ? 12 : 14, fontWeight: 600, fontFamily: 'IBM Plex Sans', fill: '#334155'
       });
       canvas.add(box, badge, badgeText, header);
     });
 
-    // Connecting arrows between panels
+    var arrowY = topY + Math.floor(panelH / 2);
     var arrow1 = new fabric.Group([
-      new fabric.Line([485, 390, 535, 390], { stroke: '#64748b', strokeWidth: 3 }),
-      new fabric.Triangle({ left: 535, top: 390, width: 14, height: 16, fill: '#64748b', angle: 90, originX: 'center', originY: 'center' })
+      new fabric.Line([panels[0].x + panelW + 2, arrowY, panels[1].x - 8, arrowY], { stroke: '#64748b', strokeWidth: 2.5 }),
+      new fabric.Triangle({ left: panels[1].x - 4, top: arrowY, width: 12, height: 14, fill: '#64748b', angle: 90, originX: 'center', originY: 'center' })
     ], { name: 'Flow Arrow 1' });
 
     var arrow2 = new fabric.Group([
-      new fabric.Line([965, 390, 1015, 390], { stroke: '#64748b', strokeWidth: 3 }),
-      new fabric.Triangle({ left: 1015, top: 390, width: 14, height: 16, fill: '#64748b', angle: 90, originX: 'center', originY: 'center' })
+      new fabric.Line([panels[1].x + panelW + 2, arrowY, panels[2].x - 8, arrowY], { stroke: '#64748b', strokeWidth: 2.5 }),
+      new fabric.Triangle({ left: panels[2].x - 4, top: arrowY, width: 12, height: 14, fill: '#64748b', angle: 90, originX: 'center', originY: 'center' })
     ], { name: 'Flow Arrow 2' });
 
     canvas.add(arrow1, arrow2);
+
+    if (topY + panelH + 50 > targetH){
+      setCanvasSize(targetW, topY + panelH + 60, state.activePresetName);
+    }
+
     canvas.renderAll();
     pushHistory();
     refreshLayers();
@@ -4194,56 +4514,82 @@
     zoomFit();
     setTool('select');
     closeAllFlyouts();
-    showToast('Loaded Graphical Abstract blueprint — Fitted to screen');
+    showToast('Loaded Graphical Abstract blueprint — ' + (mode === 'fit' ? 'Adapted to figure' : 'Expanded canvas'));
   }
 
-  function loadSignalingCascadeTemplate(){
-    setCanvasSize(1400, 900);
-    canvas.clear();
-    canvas.backgroundColor = '#ffffff';
+  function loadSignalingCascadeTemplate(opts){
+    opts = opts || {};
+    var mode = opts.mode || state.templateArtboardMode || 'fit';
+    var insert = !!opts.insert;
+
+    if (mode === 'expand'){
+      setCanvasSize(1400, 900, 'Template: Signaling Pathway');
+    }
+    if (!insert){
+      canvas.clear();
+      canvas.backgroundColor = '#ffffff';
+    }
+
+    var startY = 40;
+    if (insert){
+      var b = getCanvasBottom();
+      startY = b > 0 ? (b + 60) : 40;
+    }
+
+    var targetW = state.docWidth;
+    var targetH = state.docHeight;
+    var memW = Math.max(650, targetW - 120);
 
     // Title
     var title = new fabric.IText('Receptor-Mediated Intracellular Signaling Pathway', {
-      left: 60, top: 40, fontSize: 24, fontWeight: 700, fontFamily: 'IBM Plex Sans', fill: '#0f172a'
+      left: 50, top: startY, fontSize: 24, fontWeight: 700, fontFamily: 'IBM Plex Sans', fill: '#0f172a'
     });
     canvas.add(title);
 
     // Membrane bilayer across top
-    var membrane = generateWavyMembraneObjects(1280, 2, 60, 160);
-    var membraneGroup = new fabric.Group(membrane, { left: 60, top: 160, name: 'Plasma Membrane' });
+    var membrane = generateWavyMembraneObjects(memW, 2, 50, startY + 120);
+    var membraneGroup = new fabric.Group(membrane, { left: 50, top: startY + 120, name: 'Plasma Membrane' });
     canvas.add(membraneGroup);
 
     // Labels
-    var extLabel = new fabric.IText('Extracellular Space', { left: 80, top: 115, fontSize: 13, fontWeight: 600, fill: '#64748b' });
-    var cytoLabel = new fabric.IText('Cytoplasm', { left: 80, top: 240, fontSize: 13, fontWeight: 600, fill: '#64748b' });
+    var extLabel = new fabric.IText('Extracellular Space', { left: 70, top: startY + 75, fontSize: 13, fontWeight: 600, fill: '#64748b' });
+    var cytoLabel = new fabric.IText('Cytoplasm', { left: 70, top: startY + 200, fontSize: 13, fontWeight: 600, fill: '#64748b' });
     canvas.add(extLabel, cytoLabel);
 
+    var cx = Math.floor(targetW / 2);
     // Receptor representation in membrane
-    var r1 = new fabric.Rect({ left: 380, top: 130, width: 22, height: 80, fill: '#0284c7', rx: 4, ry: 4 });
-    var r2 = new fabric.Rect({ left: 406, top: 130, width: 22, height: 80, fill: '#0284c7', rx: 4, ry: 4 });
+    var r1 = new fabric.Rect({ left: cx - 20, top: startY + 90, width: 20, height: 80, fill: '#0284c7', rx: 4, ry: 4 });
+    var r2 = new fabric.Rect({ left: cx + 4, top: startY + 90, width: 20, height: 80, fill: '#0284c7', rx: 4, ry: 4 });
     var receptor = new fabric.Group([r1, r2], { name: 'Transmembrane Receptor Dimer' });
 
     // Ligand
-    var ligand = new fabric.Circle({ left: 404, top: 100, radius: 10, fill: '#e11d48', name: 'Agonist Ligand' });
-    var ligandText = new fabric.Text('L', { left: 404, top: 100, fontSize: 11, fill: '#fff', fontWeight: 700, originX: 'center', originY: 'center' });
+    var ligand = new fabric.Circle({ left: cx + 2, top: startY + 60, radius: 10, fill: '#e11d48', name: 'Agonist Ligand' });
+    var ligandText = new fabric.Text('L', { left: cx + 2, top: startY + 60, fontSize: 11, fill: '#fff', fontWeight: 700, originX: 'center', originY: 'center' });
     var ligandGroup = new fabric.Group([ligand, ligandText], { name: 'Ligand Complex' });
 
     // Signaling Kinase Cascade nodes
-    var k1 = new fabric.Circle({ left: 404, top: 290, radius: 24, fill: '#0d9488', originX: 'center', originY: 'center' });
-    var kt1 = new fabric.Text('Kinase 1', { left: 404, top: 290, fontSize: 11, fill: '#fff', fontWeight: 600, originX: 'center', originY: 'center' });
-    var ptag1 = new fabric.Circle({ left: 422, top: 272, radius: 8, fill: '#f59e0b', originX: 'center', originY: 'center' });
-    var ptext1 = new fabric.Text('P', { left: 422, top: 272, fontSize: 9, fill: '#fff', fontWeight: 700, originX: 'center', originY: 'center' });
+    var k1 = new fabric.Circle({ left: cx + 2, top: startY + 250, radius: 24, fill: '#0d9488', originX: 'center', originY: 'center' });
+    var kt1 = new fabric.Text('Kinase 1', { left: cx + 2, top: startY + 250, fontSize: 11, fill: '#fff', fontWeight: 600, originX: 'center', originY: 'center' });
+    var ptag1 = new fabric.Circle({ left: cx + 20, top: startY + 232, radius: 8, fill: '#f59e0b', originX: 'center', originY: 'center' });
+    var ptext1 = new fabric.Text('P', { left: cx + 20, top: startY + 232, fontSize: 9, fill: '#fff', fontWeight: 700, originX: 'center', originY: 'center' });
     var kinaseGroup = new fabric.Group([k1, kt1, ptag1, ptext1], { name: 'Active Phospho-Kinase' });
 
     // Downstream Transcription factor & Nucleus
-    var nucleus = new fabric.Ellipse({ left: 250, top: 520, rx: 450, ry: 180, fill: '#f1f5f9', stroke: '#94a3b8', strokeWidth: 2, strokeDashArray: [6, 4], name: 'Nucleus Envelope' });
-    var nucText = new fabric.IText('Nucleus', { left: 300, top: 540, fontSize: 14, fontWeight: 600, fill: '#64748b' });
+    var nucRx = Math.min(450, Math.floor(targetW * 0.4));
+    var nucleus = new fabric.Ellipse({ left: Math.max(50, cx - nucRx), top: startY + 480, rx: nucRx, ry: 170, fill: '#f1f5f9', stroke: '#94a3b8', strokeWidth: 2, strokeDashArray: [6, 4], name: 'Nucleus Envelope' });
+    var nucText = new fabric.IText('Nucleus', { left: Math.max(90, cx - nucRx + 50), top: startY + 500, fontSize: 14, fontWeight: 600, fill: '#64748b' });
 
     // DNA in nucleus
-    var dna = generateDNAObjects(600, 3, 300, 680);
-    var dnaGroup = new fabric.Group(dna, { left: 300, top: 680, name: 'Target Gene DNA' });
+    var dnaW = Math.min(600, targetW - 200);
+    var dna = generateDNAObjects(dnaW, 3, cx - Math.floor(dnaW / 2), startY + 630);
+    var dnaGroup = new fabric.Group(dna, { left: cx - Math.floor(dnaW / 2), top: startY + 630, name: 'Target Gene DNA' });
 
     canvas.add(receptor, ligandGroup, kinaseGroup, nucleus, nucText, dnaGroup);
+
+    if (startY + 720 > targetH){
+      setCanvasSize(targetW, startY + 760, state.activePresetName);
+    }
+
     canvas.renderAll();
     pushHistory();
     refreshLayers();
@@ -4252,36 +4598,56 @@
     zoomFit();
     setTool('select');
     closeAllFlyouts();
-    showToast('Loaded Signaling Pathway blueprint — Fitted to screen');
+    showToast('Loaded Signaling Pathway blueprint — ' + (mode === 'fit' ? 'Adapted to figure' : 'Expanded canvas'));
   }
 
   function loadProtocolWorkflowTemplate(){
-    buildFlowProtocol(PROTOCOL_TEMPLATES.assay_pipeline);
+    promptOrLoadProtocol(PROTOCOL_TEMPLATES.assay_pipeline, false);
   }
 
-  function loadWesternBlotTemplate(){
-    setCanvasSize(1200, 800);
-    canvas.clear();
-    canvas.backgroundColor = '#ffffff';
+  function loadWesternBlotTemplate(opts){
+    opts = opts || {};
+    var mode = opts.mode || state.templateArtboardMode || 'fit';
+    var insert = !!opts.insert;
+
+    if (mode === 'expand'){
+      setCanvasSize(1200, 800, 'Template: Western Blot');
+    }
+    if (!insert){
+      canvas.clear();
+      canvas.backgroundColor = '#ffffff';
+    }
+
+    var startY = 40;
+    if (insert){
+      var b = getCanvasBottom();
+      startY = b > 0 ? (b + 60) : 40;
+    }
+
+    var targetW = state.docWidth;
+    var targetH = state.docHeight;
 
     var title = new fabric.IText('Western Blot Analysis (SDS-PAGE)', {
-      left: 60, top: 40, fontSize: 24, fontWeight: 700, fontFamily: 'IBM Plex Sans', fill: '#0f172a'
+      left: 50, top: startY, fontSize: 24, fontWeight: 700, fontFamily: 'IBM Plex Sans', fill: '#0f172a'
     });
     canvas.add(title);
 
-    // Gel cassette box
+    // Gel cassette box centered
+    var gelW = Math.min(680, targetW - 260);
+    var gelLeft = Math.max(120, Math.floor((targetW - gelW - 140) / 2));
+    var topY = startY + 80;
     var gel = new fabric.Rect({
-      left: 200, top: 120, width: 680, height: 560,
+      left: gelLeft, top: topY, width: gelW, height: 560,
       fill: '#0f172a', stroke: '#334155', strokeWidth: 2, rx: 6, ry: 6, name: 'Gel Cassette'
     });
     canvas.add(gel);
 
     // Ladder text markers (kDa)
     var kdas = ['250', '130', '100', '70', '55', '35', '25', '15'];
-    var kdaY = [160, 220, 280, 340, 420, 500, 580, 640];
+    var kdaY = [160, 220, 280, 340, 420, 500, 580, 640].map(function(y){ return topY + (y - 120); });
     kdas.forEach(function(k, idx){
       var t = new fabric.Text(k + ' —', {
-        left: 140, top: kdaY[idx] - 6, fontSize: 12, fontWeight: 500, fontFamily: 'IBM Plex Mono', fill: '#475569'
+        left: gelLeft - 55, top: kdaY[idx] - 6, fontSize: 12, fontWeight: 500, fontFamily: 'IBM Plex Mono', fill: '#475569'
       });
       canvas.add(t);
     });
@@ -4289,48 +4655,46 @@
     // Ladder bands
     kdaY.forEach(function(y){
       var b = new fabric.Rect({
-        left: 215, top: y, width: 44, height: 5, fill: '#38bdf8', rx: 2.5, ry: 2.5, opacity: 0.9
+        left: gelLeft + 15, top: y, width: 44, height: 5, fill: '#38bdf8', rx: 2.5, ry: 2.5, opacity: 0.9
       });
       canvas.add(b);
     });
 
-    // Lane labels
+    // Lane labels & bands
+    var laneSpacing = Math.floor((gelW - 80) / 5);
     for (var i = 1; i <= 5; i++){
-      var lx = 230 + i * 105;
+      var lx = gelLeft + 25 + i * laneSpacing;
       var lt = new fabric.Text('Lane ' + i, {
-        left: lx, top: 135, fontSize: 11, fontWeight: 600, fill: '#94a3b8'
+        left: lx, top: topY + 15, fontSize: 11, fontWeight: 600, fill: '#94a3b8'
       });
       canvas.add(lt);
     }
 
-    // Protein bands in lanes
-    var bandConfigs = [
-      { y: 340, opacity: 0.9, color: '#ffffff' }, // 70 kDa band
-      { y: 420, opacity: 0.95, color: '#ffffff' }, // 55 kDa target
-      { y: 500, opacity: 0.85, color: '#ffffff' }  // 35 kDa GAPDH
-    ];
     for (var l = 1; l <= 5; l++){
-      var bx = 230 + l * 105;
-      // Target band with varying expression
+      var bx = gelLeft + 25 + l * laneSpacing;
       var op = [0.15, 0.45, 0.95, 0.9, 0.3][l - 1];
       var band = new fabric.Rect({
-        left: bx, top: 420, width: 60, height: 7, fill: '#ffffff', rx: 3, ry: 3, opacity: op
+        left: bx, top: topY + 300, width: Math.min(60, laneSpacing - 12), height: 7, fill: '#ffffff', rx: 3, ry: 3, opacity: op
       });
       canvas.add(band);
     }
 
-    // GAPDH control bands (constant)
     for (var j = 1; j <= 5; j++){
-      var gbx = 230 + j * 105;
+      var gbx = gelLeft + 25 + j * laneSpacing;
       var gb = new fabric.Rect({
-        left: gbx, top: 500, width: 60, height: 6, fill: '#ffffff', rx: 3, ry: 3, opacity: 0.85
+        left: gbx, top: topY + 380, width: Math.min(60, laneSpacing - 12), height: 6, fill: '#ffffff', rx: 3, ry: 3, opacity: 0.85
       });
       canvas.add(gb);
     }
 
-    var targetLabel = new fabric.IText('Target Protein (55 kDa)', { left: 910, top: 414, fontSize: 13, fontWeight: 600, fill: '#0f172a' });
-    var gapdhLabel = new fabric.IText('GAPDH Loading Control (35 kDa)', { left: 910, top: 494, fontSize: 13, fontWeight: 600, fill: '#64748b' });
+    var labelX = gelLeft + gelW + 20;
+    var targetLabel = new fabric.IText('Target Protein (55 kDa)', { left: labelX, top: topY + 294, fontSize: 12.5, fontWeight: 600, fill: '#0f172a' });
+    var gapdhLabel = new fabric.IText('GAPDH Loading Control (35 kDa)', { left: labelX, top: topY + 374, fontSize: 12.5, fontWeight: 600, fill: '#64748b' });
     canvas.add(targetLabel, gapdhLabel);
+
+    if (topY + 600 > targetH){
+      setCanvasSize(targetW, topY + 640, state.activePresetName);
+    }
 
     canvas.renderAll();
     pushHistory();
@@ -4340,7 +4704,7 @@
     zoomFit();
     setTool('select');
     closeAllFlyouts();
-    showToast('Loaded Western Blot template — Fitted to screen');
+    showToast('Loaded Western Blot template — ' + (mode === 'fit' ? 'Adapted to figure' : 'Expanded canvas'));
   }
 
   /* Side Tab Switching */
@@ -4505,8 +4869,8 @@
 
   function getDocCenter(){
     return {
-      x: (state.docWidth || canvas.getWidth()) / 2,
-      y: (state.docHeight || canvas.getHeight()) / 2
+      x: state.docWidth / 2,
+      y: state.docHeight / 2
     };
   }
 
@@ -4615,9 +4979,10 @@
 
           fabric.loadSVGFromString(svgString, function(objects, options){
             var group = fabric.util.groupSVGElements(objects, options);
+            var center = getDocCenter();
             group.set({
-              left: canvas.getWidth() / 2,
-              top: canvas.getHeight() / 2,
+              left: center.x,
+              top: center.y,
               originX: 'center',
               originY: 'center',
               scaleX: 1.4,
@@ -5109,9 +5474,10 @@
       if (file.type === 'image/svg+xml' || file.name.slice(-4).toLowerCase() === '.svg'){
         fabric.loadSVGFromString(content, function(objects, options){
           var group = fabric.util.groupSVGElements(objects, options);
-          var scale = Math.min(canvas.getWidth() * 0.5 / (group.width || 1), canvas.getHeight() * 0.5 / (group.height || 1), 1);
+          var center = getDocCenter();
+          var scale = Math.min(state.docWidth * 0.5 / (group.width || 1), state.docHeight * 0.5 / (group.height || 1), 1);
           group.set({
-            left: canvas.getWidth() / 2, top: canvas.getHeight() / 2, originX: 'center', originY: 'center', scaleX: scale, scaleY: scale, name: file.name
+            left: center.x, top: center.y, originX: 'center', originY: 'center', scaleX: scale, scaleY: scale, name: file.name
           });
           idFor(group);
           canvas.add(group);
@@ -5120,9 +5486,10 @@
         });
       } else {
         fabric.Image.fromURL(content, function(img){
-          var scale = Math.min(canvas.getWidth() * 0.6 / img.width, canvas.getHeight() * 0.6 / img.height, 1);
+          var center = getDocCenter();
+          var scale = Math.min(state.docWidth * 0.6 / img.width, state.docHeight * 0.6 / img.height, 1);
           img.set({
-            left: canvas.getWidth() / 2, top: canvas.getHeight() / 2, originX: 'center', originY: 'center', scaleX: scale, scaleY: scale, name: file.name
+            left: center.x, top: center.y, originX: 'center', originY: 'center', scaleX: scale, scaleY: scale, name: file.name
           });
           idFor(img);
           canvas.add(img);
@@ -5162,8 +5529,8 @@
     var data = {
       version: '2.0',
       title: document.getElementById('docTitle').value,
-      width: canvas.getWidth(),
-      height: canvas.getHeight(),
+      width: state.docWidth,
+      height: state.docHeight,
       canvas: canvas.toJSON(['id','name','selectable','evented','lockMovementX','lockMovementY','hasControls','hasBorders'])
     };
     var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -5279,7 +5646,7 @@
         // jsPDF export
         if (window.jspdf && window.jspdf.jsPDF){
           try {
-            var cw = canvas.getWidth(), ch = canvas.getHeight();
+            var cw = state.docWidth, ch = state.docHeight;
             var orient = cw >= ch ? 'landscape' : 'portrait';
             var doc = new window.jspdf.jsPDF({ orientation: orient, unit: 'pt', format: [cw, ch] });
             var imgData = canvas.toDataURL({ format: 'png', multiplier: 2 / state.zoom });
@@ -5332,6 +5699,7 @@
   /* ======================================================================
      21. BOOTSTRAP INITIALIZATION
   ====================================================================== */
+  initTemplatePromptModal();
   setCanvasSize(CANVAS_PRESETS.single.w, CANVAS_PRESETS.single.h);
   zoomFit();
   pushHistory();
